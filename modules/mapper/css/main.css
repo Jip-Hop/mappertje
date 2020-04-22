@@ -18,7 +18,7 @@ html > body {
   position: relative;
 }
 
-html > body.correctingSource {
+html > body.correctingSource:not(.transition) {
   overflow: auto;
 }
 
