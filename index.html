@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        border: 0;
+      }
+
+      html,
+      body {
+        width: 100vw;
+        height: 100vh;
+        background: black;
+        overflow: hidden;
+        color: white;
+        font-family: sans-serif;
+        text-align: center;
+      }
+
+      h1 {
+        font-weight: lighter;
+        font-size: 30px;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+      }
+
+      p {
+        font-size: 14px;
+      }
+
+      #footnote {
+        margin-top: 10px;
+        color: gray;
+      }
+
+      body {
+        display: none;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+
+      body.setup {
+        display: flex;
+      }
+
+      button {
+        padding: 10px;
+        margin: 5px;
+        cursor: pointer;
+        width: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <h1>Mappertje</h1>
+      <button id="camera">Camera</button>
+      <button id="screen">Screen</button>
+      <p id="footnote">Projection mapping tool for Chrome and Firefox.</p>
+    </div>
+    <script type="module">
+      import mapper from "./modules/mapper/index.js";
+
+      var hash;
+
+      const finishSetup = () => {
+        document.body.classList.add("setup");
+        addEventListener(
+          "hashchange",
+          () => {
+            if (location.hash !== hash) {
+              location.reload();
+            }
+          },
+          false
+        );
+      };
+
+      const cleanBody = () => {
+        document.body.textContent = "";
+        finishSetup();
+      };
+
+      const errorHandler = (e) => {
+        location.hash = "";
+        finishSetup();
+        console.error("Error:" + e);
+      };
+
+      const setHash = (newHash) => {
+        location.hash = hash = newHash;
+      };
+
+      const captureCamera = () => {
+        if (navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices
+            .getUserMedia({
+              video: {
+                width: { ideal: 4096 },
+                height: { ideal: 2160 },
+              },
+            })
+            .then((stream) => {
+              cleanBody();
+              setHash("/camera");
+              mapper(stream, document.body);
+            })
+            .catch(errorHandler);
+        }
+      };
+
+      const captureScreen = () => {
+        // For Firefox and Safari:
+        // getDisplayMedia must be called from a user gesture handler.
+        if (navigator.mediaDevices.getDisplayMedia) {
+          navigator.mediaDevices
+            .getDisplayMedia({
+              video: true,
+            })
+            .then((stream) => {
+              cleanBody();
+              setHash("/screen");
+              mapper(stream, document.body);
+            })
+            .catch(errorHandler);
+        }
+      };
+
+      const init = () => {
+        if (location.hash === "#/camera") {
+          captureCamera();
+        } else if (location.hash === "#/screen") {
+          captureScreen();
+        } else {
+          setHash("/");
+          finishSetup();
+        }
+      };
+
+      document.getElementById("camera").onclick = captureCamera;
+      document.getElementById("screen").onclick = captureScreen;
+
+      init();
+
+      // TODO: make bug report about matrix3d in Safari giving different result than Chrome or Firefox,
+      // and make a little warning text when detecting Safari.
+    </script>
+  </body>
+</html>
