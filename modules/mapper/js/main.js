@@ -411,9 +411,15 @@ const keydownHandler = (e) => {
     // HTML5 Fullscreen API, but make the actual window fullscreen.
     // That's assuming this page would be opened as a pop-out window.
     toggleFullScreen();
-  } else if (e.keyCode === 82 && !e.metaKey) {
-    // Reload if "r" is pressed without a meta key,
-    // we don't want to initCorners() on cmd+r for a page reload.
+  } else if (
+    e.keyCode === 82 &&
+    !e.metaKey &&
+    !e.ctrlKey &&
+    !e.altKey &&
+    !e.shiftKey
+  ) {
+    // Reload if "r" is pressed without a meta, ctrl, alt or shift.
+    // We don't want to initCorners() on cmd+r for a page reload.
     e.preventDefault();
     initCorners();
   }
