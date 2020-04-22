@@ -7,7 +7,8 @@
   font-family: sans-serif;
 }
 
-html, html > body {
+html,
+html > body {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
@@ -101,6 +102,7 @@ html > body.transition iframe {
   pointer-events: none;
   border-radius: 2px;
   border-left: 2px solid transparent;
+  box-shadow: 0 0 1px rgba(255, 255, 255, 0); /* anti aliasing for Chrome on Windows */
 }
 
 #line1,
@@ -166,7 +168,10 @@ html > body.correctingSource > *:not(.sourceCorrect) {
   display: none;
 }
 
-html > body.correctingSource #sourceCorrectButton > *:not(.sourceCorrect):not(.shortcuts) {
+html
+  > body.correctingSource
+  #sourceCorrectButton
+  > *:not(.sourceCorrect):not(.shortcuts) {
   display: none;
 }
 
