@@ -82,7 +82,7 @@
         addEventListener(
           "hashchange",
           () => {
-            if (location.hash !== hash) {
+            if (location.hash.substr(1) !== hash) {
               location.reload();
             }
           },
@@ -116,7 +116,7 @@
           console.error(e);
         }
 
-        setHash("");
+        setHash("/");
         finishSetup();
       };
 
@@ -130,8 +130,8 @@
               },
             })
             .then((stream) => {
-              cleanBody();
               setHash("/camera");
+              cleanBody();
               mapper(stream, document.body);
             })
             .catch((e) => errorHandler(e, "camera"));
@@ -147,8 +147,8 @@
               video: true,
             })
             .then((stream) => {
-              cleanBody();
               setHash("/screen");
+              cleanBody();
               mapper(stream, document.body);
             })
             .catch((e) => errorHandler(e, "screen"));
@@ -156,6 +156,9 @@
       };
 
       const init = () => {
+        document.getElementById("camera").onclick = captureCamera;
+        document.getElementById("screen").onclick = captureScreen;
+
         if (location.hash === "#/camera") {
           captureCamera();
         } else if (location.hash === "#/screen") {
@@ -165,9 +168,6 @@
           finishSetup();
         }
       };
-
-      document.getElementById("camera").onclick = captureCamera;
-      document.getElementById("screen").onclick = captureScreen;
 
       init();
 
