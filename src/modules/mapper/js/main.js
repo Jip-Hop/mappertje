@@ -399,16 +399,16 @@ const setupCommonMouseHandlers = (win) => {
 
 const keydownHandler = (e) => {
   scheduleUserInactive();
-  if (e.keyCode === 9) {
-    // Toggle correction mode with "Tab" key
+  if (e.key === "Tab") {
+    // Toggle correction mode
     e.preventDefault();
     toggleSourceCorrect();
-  } else if (e.keyCode === 13) {
-    // Toggle fullscreen with "Enter" key
+  } else if (e.key === "Enter") {
+    // Toggle fullscreen
     e.preventDefault();
     toggleFullScreen();
   } else if (
-    e.keyCode === 82 &&
+    e.key === "r" &&
     !e.metaKey &&
     !e.ctrlKey &&
     !e.altKey &&
