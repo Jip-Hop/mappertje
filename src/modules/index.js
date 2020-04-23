@@ -133,7 +133,7 @@ const openPopout = (type) => {
   window.open(
     location.href.replace(location.hash, "#/" + type),
     Date.now(),
-    `status=no,menubar=no,width=${screen.width},height=${screen.height},left=0,top=0`
+    `status=no,menubar=no,width=${screen.availWidth},height=${screen.availHeight},left=${screen.availLeft},top=${screen.availTop}`
   );
 };
 
