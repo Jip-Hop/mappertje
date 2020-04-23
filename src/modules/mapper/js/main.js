@@ -406,9 +406,6 @@ const keydownHandler = (e) => {
   } else if (e.keyCode === 13) {
     // Toggle fullscreen with "Enter" key
     e.preventDefault();
-    // TODO: if this would be an extension, it's better not to use
-    // HTML5 Fullscreen API, but make the actual window fullscreen.
-    // That's assuming this page would be opened as a pop-out window.
     toggleFullScreen();
   } else if (
     e.keyCode === 82 &&

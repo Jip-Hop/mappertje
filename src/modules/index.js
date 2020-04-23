@@ -2,14 +2,17 @@ import mapper from "./mapper/index.js";
 
 var hash;
 const inExtension = (() => {
-  if (chrome && chrome.runtime) {
+  if (window.chrome && window.chrome.extension) {
     return true;
-  } else if (browser && browser.runtime) {
+  } else if (window.browser && window.browser.extension) {
     // Access extension apis via Chrome variable
-    window.chrome = browser;
+    window.chrome = window.browser;
     return true;
   }
 })();
+const inBrowserActionPopup =
+  inExtension &&
+  chrome.extension.getViews({ type: "popup" }).indexOf(window) > -1;
 
 const finishSetup = () => {
   document.body.classList.add("setup");
@@ -135,7 +138,7 @@ const openPopout = (type) => {
 };
 
 const cameraClickHandler = () => {
-  if (inExtension) {
+  if (inBrowserActionPopup) {
     openPopout("camera");
   } else {
     captureCamera();
@@ -143,7 +146,7 @@ const cameraClickHandler = () => {
 };
 
 const screenClickHandler = () => {
-  if (inExtension) {
+  if (inBrowserActionPopup) {
     openPopout("screen");
   } else {
     captureScreen();
