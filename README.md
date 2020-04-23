@@ -1,4 +1,7 @@
 # mappertje
+
+![Usage Demonstration](demo.gif "Usage Demonstration")
+
 Projection mapping tool for Chrome and Firefox. Apply perspective correction and crop your source (camera or screen) to map it onto a rectangular target surface with corner pinning.
 
 Can be installed as a browser extension (but isn't published yet.)
