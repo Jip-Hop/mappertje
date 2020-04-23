@@ -120,7 +120,14 @@
         finishSetup();
       };
 
+      const handleStream = (stream, type) => {
+        setHash("/" + type);
+        cleanBody();
+        mapper(stream, document.body);
+      };
+
       const captureCamera = () => {
+        const type = "camera";
         if (navigator.mediaDevices.getUserMedia) {
           navigator.mediaDevices
             .getUserMedia({
@@ -129,16 +136,13 @@
                 height: { ideal: 2160 },
               },
             })
-            .then((stream) => {
-              setHash("/camera");
-              cleanBody();
-              mapper(stream, document.body);
-            })
-            .catch((e) => errorHandler(e, "camera"));
+            .then((stream) => handleStream(stream, type))
+            .catch((e) => errorHandler(e, type));
         }
       };
 
       const captureScreen = () => {
+        const type = "screen";
         // For Firefox and Safari:
         // getDisplayMedia must be called from a user gesture handler.
         if (navigator.mediaDevices.getDisplayMedia) {
@@ -146,12 +150,8 @@
             .getDisplayMedia({
               video: true,
             })
-            .then((stream) => {
-              setHash("/screen");
-              cleanBody();
-              mapper(stream, document.body);
-            })
-            .catch((e) => errorHandler(e, "screen"));
+            .then((stream) => handleStream(stream, type))
+            .catch((e) => errorHandler(e, type));
         }
       };
 
