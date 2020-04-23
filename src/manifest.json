@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "manifest_version": 2,
   "description": "Projection mapping tool. Apply perspective correction and crop your source (camera or screen) to map it onto a rectangular target surface with corner pinning.",
-  // "icons": {
-  //   "16": "icons/icon16.png",
-  //   "48": "icons/icon48.png",
-  //   "128": "icons/icon128.png",
-  //   "980": "icons/icon980.png"
-  // },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
   "browser_action": {
     "default_popup": "index.html"
   },
