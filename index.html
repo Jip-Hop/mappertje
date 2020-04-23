@@ -36,6 +36,15 @@
         color: gray;
       }
 
+      #error {
+        margin-top: 10px;
+        color: red;
+      }
+
+      #error:empty {
+        display: none;
+      }
+
       body {
         display: none;
         justify-content: center;
@@ -61,6 +70,7 @@
       <button id="camera">Camera</button>
       <button id="screen">Screen</button>
       <p id="footnote">Projection mapping tool for Chrome and Firefox.</p>
+      <p id="error"></p>
     </div>
     <script type="module">
       import mapper from "./modules/mapper/index.js";
@@ -85,14 +95,29 @@
         finishSetup();
       };
 
-      const errorHandler = (e) => {
-        location.hash = "";
-        finishSetup();
-        console.error("Error:" + e);
-      };
-
       const setHash = (newHash) => {
         location.hash = hash = newHash;
+      };
+
+      const errorHandler = (e, type) => {
+        // Keep user gesture errors quite,
+        // and redirect to the main menu where
+        // user can click desired source.
+        if (e.message.indexOf("user gesture") === -1) {
+          var message;
+
+          if (e.name === "NotAllowedError") {
+            message = `Error: Not allowed to access ${type}. Please grant permission.`;
+          } else {
+            message = `Error: ${e.message}`;
+          }
+
+          document.getElementById("error").innerText = message;
+          console.error(e);
+        }
+
+        setHash("");
+        finishSetup();
       };
 
       const captureCamera = () => {
@@ -109,7 +134,7 @@
               setHash("/camera");
               mapper(stream, document.body);
             })
-            .catch(errorHandler);
+            .catch((e) => errorHandler(e, "camera"));
         }
       };
 
@@ -126,7 +151,7 @@
               setHash("/screen");
               mapper(stream, document.body);
             })
-            .catch(errorHandler);
+            .catch((e) => errorHandler(e, "screen"));
         }
       };
 
