@@ -1,6 +1,15 @@
 import mapper from "./mapper/index.js";
 
 var hash;
+const inExtension = (() => {
+  if (chrome && chrome.runtime) {
+    return true;
+  } else if (browser && browser.runtime) {
+    // Access extension apis via Chrome variable
+    window.chrome = browser;
+    return true;
+  }
+})();
 
 const finishSetup = () => {
   document.body.classList.add("setup");
@@ -28,13 +37,13 @@ const errorHandler = (e, type) => {
   // Keep user gesture errors quite,
   // and redirect to the main menu where
   // user can click desired source.
-  if (e.message.indexOf("user gesture") === -1) {
+  if (!e.message || e.message.indexOf("user gesture") === -1) {
     var message;
 
     if (e.name === "NotAllowedError") {
       message = `Error: Not allowed to access ${type}. Please grant permission.`;
     } else {
-      message = `Error: ${e.message}`;
+      message = `Error: ${e.message || e.name}`;
     }
 
     document.getElementById("error").innerText = message;
@@ -51,23 +60,60 @@ const handleStream = (stream, type) => {
   mapper(stream, document.body);
 };
 
-const captureCamera = () => {
-  const type = "camera";
+const getUserMedia = (constraints, type) => {
   if (navigator.mediaDevices.getUserMedia) {
     navigator.mediaDevices
-      .getUserMedia({
-        video: {
-          width: { ideal: 4096 },
-          height: { ideal: 2160 },
-        },
-      })
+      .getUserMedia(constraints)
       .then((stream) => handleStream(stream, type))
       .catch((e) => errorHandler(e, type));
   }
 };
 
+const captureCamera = () => {
+  getUserMedia(
+    {
+      video: {
+        width: { ideal: 4096 },
+        height: { ideal: 2160 },
+      },
+    },
+    "camera"
+  );
+};
+
 const captureScreen = () => {
   const type = "screen";
+
+  if (
+    inExtension &&
+    chrome.desktopCapture &&
+    chrome.desktopCapture.chooseDesktopMedia
+  ) {
+    return chrome.desktopCapture.chooseDesktopMedia(
+      ["window", "screen"],
+      (streamId) => {
+        if (!streamId) {
+          setHash("/");
+          finishSetup();
+          return;
+        }
+
+        getUserMedia(
+          {
+            audio: false,
+            video: {
+              mandatory: {
+                chromeMediaSource: "desktop",
+                chromeMediaSourceId: streamId,
+              },
+            },
+          },
+          type
+        );
+      }
+    );
+  }
+
   // For Firefox and Safari:
   // getDisplayMedia must be called from a user gesture handler.
   if (navigator.mediaDevices.getDisplayMedia) {
@@ -80,10 +126,6 @@ const captureScreen = () => {
   }
 };
 
-const inExtension = () => {
-  return (chrome && chrome.runtime) || (browser && browser.runtime);
-};
-
 const openPopout = (type) => {
   window.open(
     location.href.replace(location.hash, "#/" + type),
@@ -93,7 +135,7 @@ const openPopout = (type) => {
 };
 
 const cameraClickHandler = () => {
-  if (inExtension()) {
+  if (inExtension) {
     openPopout("camera");
   } else {
     captureCamera();
@@ -101,7 +143,7 @@ const cameraClickHandler = () => {
 };
 
 const screenClickHandler = () => {
-  if (inExtension()) {
+  if (inExtension) {
     openPopout("screen");
   } else {
     captureScreen();
