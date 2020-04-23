@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Mappertje</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        border: 0;
+      }
+
+      html,
+      body {
+        width: 100vw;
+        height: 100vh;
+        background: black;
+        overflow: hidden;
+        color: white;
+        font-family: sans-serif;
+        text-align: center;
+        min-width: 400px;
+        min-height: 200px;
+      }
+
+      h1 {
+        font-weight: lighter;
+        font-size: 30px;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+      }
+
+      p {
+        font-size: 14px;
+      }
+
+      #footnote {
+        margin-top: 10px;
+        color: gray;
+      }
+
+      #error {
+        margin-top: 10px;
+        color: red;
+      }
+
+      #error:empty {
+        display: none;
+      }
+
+      body {
+        display: none;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+
+      body.setup {
+        display: flex;
+      }
+
+      button {
+        padding: 10px;
+        margin: 5px;
+        cursor: pointer;
+        width: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <h1>Mappertje</h1>
+      <button id="camera">Camera</button>
+      <button id="screen">Screen</button>
+      <p id="footnote">Projection mapping tool for Chrome and Firefox.</p>
+      <p id="error"></p>
+    </div>
+    <script type="module" src="./modules/index.js"></script>
+  </body>
+</html>

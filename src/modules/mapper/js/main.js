@@ -362,7 +362,6 @@ const scheduleUserInactive = () => {
 };
 
 const toggleFullScreen = () => {
-  console.log("TOGGLE");
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen();
   } else {
