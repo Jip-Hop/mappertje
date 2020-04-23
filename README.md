@@ -6,7 +6,7 @@ Projection mapping tool for Chrome and Firefox. Apply perspective correction and
 
 Can be installed as a browser extension (but isn't published yet.)
 
-Try out [the online version of Mappertje](https://jip-hop.github.io/mappertje/src/#/).
+Try out [the online version of Mappertje](https://mappertje.tk/src/#/).
 
 ### Thanks to
 * [Videokaffe](http://www.videokaffe.com/) and their regular projection mapping sessions.
