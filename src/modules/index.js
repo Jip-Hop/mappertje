@@ -160,8 +160,16 @@ const screenClickHandler = () => {
 };
 
 const init = () => {
-  document.getElementById("camera").onclick = cameraClickHandler;
-  document.getElementById("screen").onclick = screenClickHandler;
+  // Clear default error message
+  document.getElementById("error").innerText = "";
+
+  const cameraButton = document.getElementById("camera");
+  cameraButton.disabled = false;
+  cameraButton.onclick = cameraClickHandler;
+
+  const screenButton = document.getElementById("screen");
+  screenButton.disabled = false;
+  screenButton.onclick = screenClickHandler;
 
   if (!(isSupportedPlatform && (isChrome || isFirefox))) {
     document.getElementById("warning").innerText =
@@ -180,5 +188,4 @@ const init = () => {
 
 init();
 
-// TODO: make bug report about matrix3d in Safari giving different result than Chrome or Firefox,
-// and make a little warning text when detecting Safari.
+// TODO: make bug report about matrix3d in Safari giving different result than Chrome or Firefox

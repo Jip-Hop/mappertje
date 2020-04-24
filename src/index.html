@@ -3,6 +3,15 @@
   <head>
     <title>Mappertje</title>
     <style>
+      @keyframes show {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
       * {
         margin: 0;
         padding: 0;
@@ -20,6 +29,20 @@
         text-align: center;
         min-width: 300px;
         min-height: 200px;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        opacity: 0;
+        animation: show 0s 1s forwards;
+      }
+
+      body.setup {
+        opacity: 1;
+        animation: none;
       }
 
       body > * {
@@ -77,22 +100,14 @@
         display: none;
       }
 
-      body {
-        display: none;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-      }
-
-      body.setup {
-        display: flex;
-      }
-
       button {
         padding: 10px;
         margin: 5px;
-        cursor: pointer;
         width: 100px;
+      }
+
+      button:not(:disabled) {
+        cursor: pointer;
         background: blue;
         color: white;
       }
@@ -101,12 +116,18 @@
   <body>
     <div>
       <h1><span></span>Mappertje</h1>
-      <button id="camera">Camera</button>
-      <button id="screen">Screen</button>
+      <button disabled id="camera">Camera</button>
+      <button disabled id="screen">Screen</button>
       <p id="footnote">Projection mapping tool.</p>
       <p id="warning"></p>
-      <p id="error"></p>
+      <p id="error">
+        Error: Mappertje won't work in this browser. Supported platforms are the
+        Chrome and Firefox desktop browsers for Windows 10 and MacOS.
+      </p>
     </div>
+    <script nomodule>
+      document.body.classList.add("setup");
+    </script>
     <script type="module" src="./modules/index.js"></script>
   </body>
 </html>
