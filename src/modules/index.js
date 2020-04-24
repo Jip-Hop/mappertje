@@ -55,13 +55,22 @@ const errorHandler = (e, type) => {
       message += `${e.message || e.name}.`;
     }
 
-    document.getElementById("error").innerText = message;
     console.error(e);
+    const errorEl = document.getElementById("error");
+    errorEl && (errorEl.innerText = message);
   }
 
   setHash("/");
   finishSetup();
 };
+
+const beforeUnloadHandler = (e) => {
+  // Ask for confirmation
+  e.preventDefault();
+  e.returnValue = "";
+};
+
+const unloadHandler = () => {};
 
 const handleStream = (stream, type) => {
   setHash("/" + type);
@@ -69,6 +78,8 @@ const handleStream = (stream, type) => {
   mapper({
     stream: stream,
     targetElement: document.body,
+    beforeUnloadHandler: beforeUnloadHandler,
+    unloadHandler: unloadHandler,
   });
 };
 

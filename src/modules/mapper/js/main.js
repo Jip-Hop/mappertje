@@ -425,7 +425,8 @@ const keydownHandler = (e) => {
 // also put those 4 colors in the corners of the black background as reference.
 // Hide those colors on inactive.
 
-window.setup = async (stream) => {
+window.setup = async (config) => {
+  const { stream, beforeUnloadHandler, unloadHandler } = config;
   document.body.innerHTML = `
   <div id="marker0" class="corner tl"></div>
   <div id="marker2" class="corner tr"></div>
@@ -526,11 +527,13 @@ window.setup = async (stream) => {
     setupCommonMouseHandlers(window);
     window.addEventListener("keydown", keydownHandler);
 
-    window.addEventListener("beforeunload", (e) => {
-      // Ask for confirmation
-      e.preventDefault();
-      e.returnValue = "";
-    });
+    if (typeof beforeUnloadHandler === "function") {
+      window.addEventListener("beforeunload", beforeUnloadHandler);
+    }
+
+    if (typeof unloadHandler === "function") {
+      window.addEventListener("unload", unloadHandler);
+    }
 
     scheduleUserInactive();
   };

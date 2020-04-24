@@ -18,7 +18,6 @@ const attachFunctionsToWindow = (functions, win) => {
 };
 
 export default function (config) {
-  const { stream, targetElement } = config;
   const iframe = document.createElement("iframe");
   iframe.style.width = iframe.style.height = "100%";
   iframe.style.opacity = 0;
@@ -34,8 +33,8 @@ export default function (config) {
       iframe.contentWindow
     );
 
-    iframe.contentWindow.setup(stream);
+    iframe.contentWindow.setup(config);
   };
 
-  targetElement.appendChild(iframe);
+  config.targetElement.appendChild(iframe);
 }
