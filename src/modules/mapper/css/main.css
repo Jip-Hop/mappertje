@@ -147,17 +147,19 @@ html > body.transition iframe {
   z-index: 1;
   padding: 5px;
   margin: 2.5px;
-  border: 1px solid black;
+  background: white;
+  color: #aaa;
+}
+
+#buttonsContainer > button:not(:disabled) {
   cursor: pointer;
+  background: blue;
+  color: white;
 }
 
 #buttonsContainer > button > .shortcuts {
   font-family: monospace;
   color: darkgray;
-}
-
-#buttonsContainer > button[disabled] {
-  cursor: unset;
 }
 
 html > body:not(.correctingSource) #sourceCorrectButton > span.sourceCorrect {

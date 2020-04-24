@@ -29,6 +29,17 @@
         text-transform: uppercase;
       }
 
+      h1 > span {
+        background-image: url(./icons/icon48.png);
+        background-size: 24px;
+        background-position: right center;
+        background-repeat: no-repeat;
+        width: 24px;
+        height: 24px;
+        display: inline-block;
+        margin-right: 10px;
+      }
+
       p {
         font-size: 14px;
       }
@@ -63,12 +74,14 @@
         margin: 5px;
         cursor: pointer;
         width: 100px;
+        background: blue;
+        color: white;
       }
     </style>
   </head>
   <body>
     <div>
-      <h1>Mappertje</h1>
+      <h1><span></span>Mappertje</h1>
       <button id="camera">Camera</button>
       <button id="screen">Screen</button>
       <p id="footnote">Projection mapping tool for Chrome and Firefox.</p>
