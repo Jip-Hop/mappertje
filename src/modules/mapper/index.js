@@ -17,12 +17,13 @@ const attachFunctionsToWindow = (functions, win) => {
   }
 };
 
-export default function (stream, targetElement) {
+export default function (config) {
+  const { stream, targetElement } = config;
   const iframe = document.createElement("iframe");
   iframe.style.width = iframe.style.height = "100%";
   iframe.style.opacity = 0;
   iframe.style.transition = "opacity 1s ease";
-  iframe.setAttribute('allowFullScreen', '');
+  iframe.setAttribute("allowFullScreen", "");
 
   iframe.onload = async () => {
     await loadScript(getUrl("./js/main.js"), iframe.contentWindow.document);

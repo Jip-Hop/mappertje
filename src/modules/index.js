@@ -66,7 +66,10 @@ const errorHandler = (e, type) => {
 const handleStream = (stream, type) => {
   setHash("/" + type);
   cleanBody();
-  mapper(stream, document.body);
+  mapper({
+    stream: stream,
+    targetElement: document.body,
+  });
 };
 
 const getUserMedia = (constraints, type) => {
