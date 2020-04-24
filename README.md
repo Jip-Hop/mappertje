@@ -1,8 +1,6 @@
-# Mappertje <img alt="Logo" src="./icon.svg" height="40px" />
+# Mappertje <img alt="Logo" src="./src/icons/icon48.png" height="24px" />
 
-<p>
-  <img alt="Usage Demonstration" title="Usage Demonstration"" src="demo.gif" width="3840px" />
-</p>
+<img alt="Usage Demonstration" title="Usage Demonstration" src="demo.gif" width="3840px" />
 
 Projection mapping tool for Chrome and Firefox. Apply perspective correction and crop your source (camera or screen) to map it onto a rectangular target surface with corner pinning.
 
