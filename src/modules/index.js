@@ -1,11 +1,12 @@
 import mapper from "./mapper/index.js";
 
-var hash;
 const isChrome = navigator.userAgent.toLowerCase().indexOf("chrome") > -1;
 const isFirefox = navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
 const isSupportedPlatform = ["MacIntel", "Win32"].indexOf(
   navigator.platform > -1
 );
+
+var hash, myMapper;
 
 const inExtension = (() => {
   if (window.chrome && window.chrome.extension) {
@@ -64,22 +65,44 @@ const errorHandler = (e, type) => {
   finishSetup();
 };
 
-const beforeUnloadHandler = (e) => {
-  // Ask for confirmation
-  e.preventDefault();
-  e.returnValue = "";
+// const beforeUnloadHandler = (e) => {
+//   // Ask for confirmation
+//   e.preventDefault();
+//   e.returnValue = "";
+// };
+
+const unloadHandler = () => {
+  localStorage.setItem(
+    "mappertje-last-state",
+    JSON.stringify(myMapper.getCurrentState())
+  );
 };
 
-const unloadHandler = () => {};
+const getStateFromStore = () => {
+  var state = localStorage.getItem("mappertje-last-state");
+  if (!state) {
+    return;
+  }
+
+  try {
+    state = JSON.parse(state);
+  } catch (e) {
+    console.error(e);
+    return;
+  }
+
+  return state;
+};
 
 const handleStream = (stream, type) => {
   setHash("/" + type);
   cleanBody();
-  mapper({
+  myMapper = mapper({
     stream: stream,
     targetElement: document.body,
-    beforeUnloadHandler: beforeUnloadHandler,
+    // beforeUnloadHandler: beforeUnloadHandler,
     unloadHandler: unloadHandler,
+    initialState: getStateFromStore(),
   });
 };
 

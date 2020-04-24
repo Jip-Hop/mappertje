@@ -272,15 +272,12 @@ const move = (e) => {
   }
 };
 
-const initCorners = () => {
+const initCorners = (initialTargetCorners) => {
   if (correctingSource) {
     sourceIframe.contentWindow.resetCorners &&
       sourceIframe.contentWindow.resetCorners();
     return;
   }
-
-  shouldDisableCornerResetButton = true;
-  cornerResetButton.disabled = shouldDisableCornerResetButton;
 
   const viewportWidth = document.documentElement.clientWidth;
   const viewportHeight = document.documentElement.clientHeight;
@@ -290,7 +287,25 @@ const initCorners = () => {
   const right = viewportWidth + left;
   const bottom = viewportHeight + top;
 
-  corners = [left, top, right, top, left, bottom, right, bottom];
+  const newCorners = [left, top, right, top, left, bottom, right, bottom];
+
+  if (initialTargetCorners) {
+    var matchesDefaultPosition = true;
+    for (let i = 0; i < initialTargetCorners.length; i++) {
+      if (initialTargetCorners[i] !== newCorners[i]) {
+        matchesDefaultPosition = false;
+        break;
+      }
+    }
+
+    corners = initialTargetCorners;
+    shouldDisableCornerResetButton = matchesDefaultPosition;
+  } else {
+    corners = newCorners;
+    shouldDisableCornerResetButton = true;
+  }
+
+  cornerResetButton.disabled = shouldDisableCornerResetButton;
 
   // Prevent calling update twice, only if size hasn't changed
   if (!updateResolution()) {
@@ -421,12 +436,38 @@ const keydownHandler = (e) => {
   }
 };
 
+window.getCurrentState = () => {
+  return {
+    targetCorners: corners,
+    sourceCorners:
+      sourceIframe.contentWindow.getCornersPosition &&
+      sourceIframe.contentWindow.getCornersPosition(),
+  };
+};
+
 // TODO: identify the corners based on 4 colors,
 // also put those 4 colors in the corners of the black background as reference.
 // Hide those colors on inactive.
 
 window.setup = async (config) => {
-  const { stream, beforeUnloadHandler, unloadHandler } = config;
+  const { stream, beforeUnloadHandler, unloadHandler, initialState } = config;
+  var initialTargetCorners, initialSourceCorners;
+  if (initialState) {
+    if (
+      initialState.targetCorners &&
+      Array.isArray(initialState.targetCorners) &&
+      initialState.targetCorners.length === 8
+    ) {
+      initialTargetCorners = initialState.targetCorners;
+    }
+    if (
+      initialState.sourceCorners &&
+      Array.isArray(initialState.sourceCorners) &&
+      initialState.sourceCorners.length === 4
+    ) {
+      initialSourceCorners = initialState.sourceCorners;
+    }
+  }
   document.body.innerHTML = `
   <div id="marker0" class="corner tl"></div>
   <div id="marker2" class="corner tr"></div>
@@ -492,10 +533,15 @@ window.setup = async (config) => {
     };
     videoElement.addEventListener("canplay", firstPlayHandler);
 
-    sourceIframe.contentWindow.setup(stream, videoElement, () => {
-      sourceIframe.contentWindow.sourceCorrect &&
-        sourceIframe.contentWindow.sourceCorrect(correctingSource);
-    });
+    sourceIframe.contentWindow.setup(
+      stream,
+      videoElement,
+      initialSourceCorners,
+      () => {
+        sourceIframe.contentWindow.sourceCorrect &&
+          sourceIframe.contentWindow.sourceCorrect(correctingSource);
+      }
+    );
 
     document.getElementById("buttonsContainer").style.height =
       previewPaddingSize + "px";
@@ -504,9 +550,9 @@ window.setup = async (config) => {
     fullScreenButton = document.querySelector("#fullScreenButton");
     cornerResetButton.disabled = shouldDisableCornerResetButton;
 
-    initCorners();
+    initCorners(initialTargetCorners);
 
-    cornerResetButton.onclick = initCorners;
+    cornerResetButton.onclick = () => initCorners();
     sourceCorrectButton.onclick = toggleSourceCorrect;
     fullScreenButton.onclick = toggleFullScreen;
 

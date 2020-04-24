@@ -79,7 +79,6 @@ const update = () => {
 
 const move = (e) => {
   if (currentCorner) {
-
     shouldDisableCornerResetButton = false;
     window.parent.cornerResetButton.disabled = shouldDisableCornerResetButton;
 
@@ -105,6 +104,12 @@ const move = (e) => {
     }
     applyTransform();
   }
+};
+
+window.getCornersPosition = () => {
+  return controlPoints.map((p) => {
+    return { top: p.style.top, left: p.style.left };
+  });
 };
 
 window.resetCorners = () => {
@@ -137,7 +142,7 @@ window.sourceCorrect = (newState) => {
 };
 
 // Make setup available for parent window
-window.setup = async (stream, video, callback) => {
+window.setup = async (stream, video, initialCorners, callback) => {
   document.body.innerHTML = `
   <div id="result">
     <video id="corrected-video" muted autoplay />
@@ -190,9 +195,35 @@ window.setup = async (stream, video, callback) => {
     controllerVid.parentNode.querySelectorAll(".corner")
   );
 
+  // Store default position as defined in HTML
   controlPoints.forEach((p, index) => {
     initialPointsPosition[index] = { top: p.style.top, left: p.style.left };
   });
+
+  if (initialCorners) {
+    var matchesDefaultPosition = true;
+
+    controlPoints.forEach((p, index) => {
+      const position = initialCorners[index];
+      p.style.top = position.top;
+      p.style.left = position.left;
+      if (
+        position.top !== initialPointsPosition[index].top ||
+        position.left !== initialPointsPosition[index].left
+      ) {
+        matchesDefaultPosition = false;
+      }
+    });
+
+    if (!matchesDefaultPosition) {
+      shouldDisableCornerResetButton = false;
+      if (sourceCorrectMode) {
+        parent.cornerResetButton.disabled = shouldDisableCornerResetButton;
+      }
+    }
+
+    applyTransform();
+  }
 
   setupCommonMouseHandlers(window);
 

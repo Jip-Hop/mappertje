@@ -37,4 +37,6 @@ export default function (config) {
   };
 
   config.targetElement.appendChild(iframe);
+
+  return iframe.contentWindow;
 }
