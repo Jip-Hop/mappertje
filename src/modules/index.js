@@ -1,6 +1,12 @@
 import mapper from "./mapper/index.js";
 
 var hash;
+const isChrome = navigator.userAgent.toLowerCase().indexOf("chrome") > -1;
+const isFirefox = navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
+const isSupportedPlatform = ["MacIntel", "Win32"].indexOf(
+  navigator.platform > -1
+);
+
 const inExtension = (() => {
   if (window.chrome && window.chrome.extension) {
     return true;
@@ -41,12 +47,12 @@ const errorHandler = (e, type) => {
   // and redirect to the main menu where
   // user can click desired source.
   if (!e.message || e.message.indexOf("user gesture") === -1) {
-    var message;
+    var message = `Error accessing ${type}. `;
 
     if (e.name === "NotAllowedError") {
-      message = `Error: Not allowed to access ${type}. Please grant permission.`;
+      message += "Not allowed. Please grant permission.";
     } else {
-      message = `Error: ${e.message || e.name}`;
+      message += `${e.message || e.name}.`;
     }
 
     document.getElementById("error").innerText = message;
@@ -156,6 +162,11 @@ const screenClickHandler = () => {
 const init = () => {
   document.getElementById("camera").onclick = cameraClickHandler;
   document.getElementById("screen").onclick = screenClickHandler;
+
+  if (!(isSupportedPlatform && (isChrome || isFirefox))) {
+    document.getElementById("warning").innerText =
+      "Warning: Mappertje may not work on this platform. Supported platforms are the Chrome and Firefox desktop browsers for Windows 10 and MacOS.";
+  }
 
   if (location.hash === "#/camera") {
     captureCamera();

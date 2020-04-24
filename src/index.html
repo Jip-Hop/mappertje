@@ -18,8 +18,14 @@
         color: white;
         font-family: sans-serif;
         text-align: center;
-        min-width: 400px;
+        min-width: 300px;
         min-height: 200px;
+      }
+
+      body > * {
+        cursor: default;
+        -webkit-user-select: none;
+        user-select: none;
       }
 
       h1 {
@@ -49,11 +55,24 @@
         color: gray;
       }
 
+      #warning {
+        margin-top: 10px;
+        color: orange;
+      }
+
       #error {
         margin-top: 10px;
         color: red;
       }
 
+      #warning,
+      #error {
+        max-width: 40em;
+        -webkit-user-select: text;
+        user-select: text;
+      }
+
+      #warning:empty,
       #error:empty {
         display: none;
       }
@@ -84,7 +103,8 @@
       <h1><span></span>Mappertje</h1>
       <button id="camera">Camera</button>
       <button id="screen">Screen</button>
-      <p id="footnote">Projection mapping tool for Chrome and Firefox.</p>
+      <p id="footnote">Projection mapping tool.</p>
+      <p id="warning"></p>
       <p id="error"></p>
     </div>
     <script type="module" src="./modules/index.js"></script>
