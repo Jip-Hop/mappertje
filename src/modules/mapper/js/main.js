@@ -373,6 +373,12 @@ const toggleSourceCorrect = () => {
 };
 
 const scheduleUserInactive = () => {
+
+  if(!document.hasFocus()){
+    setInactiveImmediately();
+    return;
+  }
+
   // User inactive doesn't apply in source correct mode
   if (correctingSource) {
     return;
@@ -622,7 +628,9 @@ window.setup = async (config) => {
     window.addEventListener("mousemove", move);
     setupCommonMouseHandlers(window);
     window.addEventListener("keydown", keydownHandler);
-    window.addEventListener("blur", setInactiveImmediately);
+    window.addEventListener("blur", () => {
+      setInactiveImmediately();
+    });
 
     if (typeof beforeUnloadHandler === "function") {
       window.addEventListener("beforeunload", beforeUnloadHandler);
