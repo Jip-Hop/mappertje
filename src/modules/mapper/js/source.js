@@ -127,6 +127,10 @@ window.resetCorners = () => {
   applyTransform();
 };
 
+window.toggleAimHelper = () => {
+  document.body.classList.toggle("aim");
+}
+
 // Make sourceCorrect available for parent window
 window.sourceCorrect = (newState) => {
   sourceCorrectMode = newState;

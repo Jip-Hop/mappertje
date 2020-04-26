@@ -318,6 +318,11 @@ const transitionEndHandler = () => {
   document.body.classList.remove("transition");
 };
 
+const setInactiveImmediately = () => {
+  clearTimeout(userInactiveTimer);
+  document.body.classList.add("inactive");
+};
+
 const startSourceCorrect = () => {
   correctingSource = true;
   document.body.classList.add("correctingSource", "transition");
@@ -328,8 +333,7 @@ const startSourceCorrect = () => {
     sourceIframe.contentWindow.shouldDisableCornerResetButton;
 
   // Stay inactive
-  clearTimeout(userInactiveTimer);
-  document.body.classList.add("inactive");
+  setInactiveImmediately();
 
   sourceIframe &&
     sourceIframe.contentWindow &&
@@ -351,6 +355,13 @@ const endSourceCorrect = () => {
     sourceIframe.contentWindow &&
     sourceIframe.contentWindow.sourceCorrect &&
     sourceIframe.contentWindow.sourceCorrect(correctingSource);
+};
+
+const toggleAimHelper = () => {
+  sourceIframe &&
+    sourceIframe.contentWindow &&
+    sourceIframe.contentWindow.toggleAimHelper &&
+    sourceIframe.contentWindow.toggleAimHelper();
 };
 
 const toggleSourceCorrect = () => {
@@ -411,6 +422,12 @@ const setupCommonMouseHandlers = (win) => {
 
 const keydownHandler = (e) => {
   scheduleUserInactive();
+
+  if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) {
+    // Don't do anything if one of these keys are pressed
+    return;
+  }
+
   if (e.key === "Tab") {
     // Toggle correction mode
     e.preventDefault();
@@ -419,17 +436,14 @@ const keydownHandler = (e) => {
     // Toggle fullscreen
     e.preventDefault();
     toggleFullScreen();
-  } else if (
-    e.key === "r" &&
-    !e.metaKey &&
-    !e.ctrlKey &&
-    !e.altKey &&
-    !e.shiftKey
-  ) {
+  } else if (e.key === "r") {
     // Reload if "r" is pressed without a meta, ctrl, alt or shift.
     // We don't want to initCorners() on cmd+r for a page reload.
     e.preventDefault();
     initCorners();
+  } else if (e.key === "a" && !correctingSource) {
+    e.preventDefault();
+    toggleAimHelper();
   }
 };
 
@@ -494,13 +508,16 @@ window.setup = async (config) => {
   <div id="marker4" class="corner bl"></div>
   <div id="marker6" class="corner br"></div>
   <div id="buttonsContainer" class="sourceCorrect">
-    <button id="cornerReset" class="sourceCorrect">
+    <button id="cornerReset">
     Reset Corners <span class="shortcuts">R</span>
     </button>
-    <button id="sourceCorrectButton" class="sourceCorrect">
+    <button id="sourceCorrectButton">
       Correct <span>Source</span> <span class="sourceCorrect">Target</span> <span class="shortcuts">Tab</span>
     </button>
-    <button id="fullScreenButton" class="sourceCorrect">
+    <button id="aimButton">
+      Aim Helper <span class="shortcuts">A</span>
+    </button>
+    <button id="fullScreenButton">
       Full Screen Toggle <span class="shortcuts">Enter</span>
     </button>
   </div>
@@ -578,6 +595,7 @@ window.setup = async (config) => {
       previewPaddingSize + "px";
     cornerResetButton = document.querySelector("#cornerReset");
     sourceCorrectButton = document.querySelector("#sourceCorrectButton");
+    aimButton = document.querySelector("#aimButton");
     fullScreenButton = document.querySelector("#fullScreenButton");
     cornerResetButton.disabled = shouldDisableCornerResetButton;
 
@@ -585,6 +603,7 @@ window.setup = async (config) => {
 
     cornerResetButton.onclick = () => initCorners();
     sourceCorrectButton.onclick = toggleSourceCorrect;
+    aimButton.onclick = toggleAimHelper;
     fullScreenButton.onclick = toggleFullScreen;
 
     // Poll for screen resolution changes
@@ -603,6 +622,7 @@ window.setup = async (config) => {
     window.addEventListener("mousemove", move);
     setupCommonMouseHandlers(window);
     window.addEventListener("keydown", keydownHandler);
+    window.addEventListener("blur", setInactiveImmediately);
 
     if (typeof beforeUnloadHandler === "function") {
       window.addEventListener("beforeunload", beforeUnloadHandler);

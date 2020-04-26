@@ -28,7 +28,7 @@ video {
   background: rgba(255, 255, 255, 0.5);
   border-radius: 2px;
   pointer-events: none;
-  filter: drop-shadow(0 0 6px rgba(0,0,0,0.75));
+  filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.75));
 }
 
 #line1,
@@ -89,6 +89,25 @@ html > body.sourceCorrectMode #controller {
   justify-content: center;
 }
 
+html > body.aim:not(.sourceCorrectMode) #result:after {
+  content: "Aim Helper";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  font-size: 5vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: blue;
+  background-color: white;
+  background-size: calc(100% / 3 - 2px) calc(100% / 3 - 2px);
+  background-image: linear-gradient(to right, blue 6px, transparent 6px),
+    linear-gradient(to bottom, blue 6px, transparent 6px);
+  background-position: top left;
+}
+
 html > body.sourceCorrectMode #result:before {
   content: "";
 }
@@ -126,7 +145,7 @@ html > body.sourceCorrectMode #result:before {
   box-sizing: border-box;
   background: radial-gradient(circle, white 1px, transparent 1px);
   background-repeat: no-repeat;
-  transition: border-color .25s ease;
+  transition: border-color 0.25s ease;
 }
 
 .corner.grabbing::after {
