@@ -10,6 +10,8 @@ var controlPoints;
 var currentCorner;
 var screenWidth, screenHeight;
 
+var currentStream;
+
 var correctingSource = false;
 var shouldDisableCornerResetButton = true;
 
@@ -261,7 +263,9 @@ const move = (e) => {
 
 const initCorners = (initialTargetCorners) => {
   if (correctingSource) {
-    sourceIframe.contentWindow.resetCorners &&
+    sourceIframe &&
+      sourceIframe.contentWindow &&
+      sourceIframe.contentWindow.resetCorners &&
       sourceIframe.contentWindow.resetCorners();
     return;
   }
@@ -319,13 +323,17 @@ const startSourceCorrect = () => {
   document.body.classList.add("correctingSource", "transition");
 
   cornerResetButton.disabled =
+    sourceIframe &&
+    sourceIframe.contentWindow &&
     sourceIframe.contentWindow.shouldDisableCornerResetButton;
 
   // Stay inactive
   clearTimeout(userInactiveTimer);
   document.body.classList.add("inactive");
 
-  sourceIframe.contentWindow.sourceCorrect &&
+  sourceIframe &&
+    sourceIframe.contentWindow &&
+    sourceIframe.contentWindow.sourceCorrect &&
     sourceIframe.contentWindow.sourceCorrect(correctingSource);
 };
 
@@ -339,7 +347,9 @@ const endSourceCorrect = () => {
   // Start as inactive
   scheduleUserInactive();
   document.body.classList.add("inactive");
-  sourceIframe.contentWindow.sourceCorrect &&
+  sourceIframe &&
+    sourceIframe.contentWindow &&
+    sourceIframe.contentWindow.sourceCorrect &&
     sourceIframe.contentWindow.sourceCorrect(correctingSource);
 };
 
@@ -423,10 +433,24 @@ const keydownHandler = (e) => {
   }
 };
 
+window.setStream = (stream) => {
+  currentStream = stream;
+  sourceIframe &&
+    sourceIframe.contentWindow &&
+    sourceIframe.contentWindow.setStream &&
+    sourceIframe.contentWindow.setStream(currentStream);
+};
+
+window.getStream = () => {
+  return currentStream;
+};
+
 window.getCurrentState = () => {
   return {
     targetCorners: corners,
     sourceCorners:
+      sourceIframe &&
+      sourceIframe.contentWindow &&
       sourceIframe.contentWindow.getCornersPosition &&
       sourceIframe.contentWindow.getCornersPosition(),
   };
@@ -444,6 +468,9 @@ window.setup = async (config) => {
     loadErrorHandler,
     initialState,
   } = config;
+
+  currentStream = stream;
+
   var initialTargetCorners, initialSourceCorners;
   if (initialState) {
     if (
@@ -535,12 +562,14 @@ window.setup = async (config) => {
     videoElement.addEventListener("canplay", firstPlayHandler);
 
     sourceIframe.contentWindow.setup(
-      stream,
+      currentStream,
       videoElement,
       initialSourceCorners,
       loadErrorHandler,
       () => {
-        sourceIframe.contentWindow.sourceCorrect &&
+        sourceIframe &&
+          sourceIframe.contentWindow &&
+          sourceIframe.contentWindow.sourceCorrect &&
           sourceIframe.contentWindow.sourceCorrect(correctingSource);
       }
     );

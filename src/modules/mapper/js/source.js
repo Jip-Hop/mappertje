@@ -141,6 +141,10 @@ window.sourceCorrect = (newState) => {
   }
 };
 
+window.setStream = (stream) => {
+  controllerVid.srcObject = correctedVid.srcObject = stream;
+};
+
 // Make setup available for parent window
 window.setup = async (
   stream,
@@ -238,7 +242,7 @@ window.setup = async (
 
   window.addEventListener("resize", update);
   controllerVid.addEventListener("resize", update);
-  controllerVid.srcObject = correctedVid.srcObject = stream;
+  setStream(stream);
 
   typeof callback === "function" && callback();
 };

@@ -148,11 +148,27 @@ const captureCamera = () => {
     },
     "camera"
   );
+
+  // // Example of how to replace the stream
+  // setTimeout(() => {
+  //   navigator.mediaDevices
+  //     .getUserMedia({
+  //       video: {
+  //         width: { ideal: 360 },
+  //         height: { ideal: 180 },
+  //       },
+  //     })
+  //     .then((stream) => {
+  //       if (myMapper.getStream(stream) !== stream) {
+  //         myMapper.setStream(stream);
+  //       }
+  //     })
+  //     .catch((e) => errorHandler(e, type));
+  // }, 10000);
 };
 
 const captureScreen = () => {
   const type = "screen";
-
   if (
     inExtension &&
     chrome.desktopCapture &&
