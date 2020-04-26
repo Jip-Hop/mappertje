@@ -159,7 +159,7 @@ const captureCamera = () => {
   //       },
   //     })
   //     .then((stream) => {
-  //       if (myMapper.getStream(stream) !== stream) {
+  //       if (myMapper.getStream() !== stream) {
   //         myMapper.setStream(stream);
   //       }
   //     })
