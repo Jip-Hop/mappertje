@@ -170,7 +170,7 @@ html > body.correctingSource > *:not(.sourceCorrect) {
   display: none;
 }
 
-html > body.correctingSource #aimButton {
+html > body.correctingSource #guidesButton {
   display: none;
 }
 

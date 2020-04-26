@@ -357,11 +357,11 @@ const endSourceCorrect = () => {
     sourceIframe.contentWindow.sourceCorrect(correctingSource);
 };
 
-const toggleAimHelper = () => {
+const toggleGuides = () => {
   sourceIframe &&
     sourceIframe.contentWindow &&
-    sourceIframe.contentWindow.toggleAimHelper &&
-    sourceIframe.contentWindow.toggleAimHelper();
+    sourceIframe.contentWindow.toggleGuides &&
+    sourceIframe.contentWindow.toggleGuides();
 };
 
 const toggleSourceCorrect = () => {
@@ -373,8 +373,7 @@ const toggleSourceCorrect = () => {
 };
 
 const scheduleUserInactive = () => {
-
-  if(!document.hasFocus()){
+  if (!document.hasFocus()) {
     setInactiveImmediately();
     return;
   }
@@ -447,9 +446,9 @@ const keydownHandler = (e) => {
     // We don't want to initCorners() on cmd+r for a page reload.
     e.preventDefault();
     initCorners();
-  } else if (e.key === "a" && !correctingSource) {
+  } else if (e.key === "g" && !correctingSource) {
     e.preventDefault();
-    toggleAimHelper();
+    toggleGuides();
   }
 };
 
@@ -520,8 +519,8 @@ window.setup = async (config) => {
     <button id="sourceCorrectButton">
       Correct <span>Source</span> <span class="sourceCorrect">Target</span> <span class="shortcuts">Tab</span>
     </button>
-    <button id="aimButton">
-      Aim Helper <span class="shortcuts">A</span>
+    <button id="guidesButton">
+      Toggle Guides <span class="shortcuts">G</span>
     </button>
     <button id="fullScreenButton">
       Full Screen Toggle <span class="shortcuts">Enter</span>
@@ -601,7 +600,7 @@ window.setup = async (config) => {
       previewPaddingSize + "px";
     cornerResetButton = document.querySelector("#cornerReset");
     sourceCorrectButton = document.querySelector("#sourceCorrectButton");
-    aimButton = document.querySelector("#aimButton");
+    guidesButton = document.querySelector("#guidesButton");
     fullScreenButton = document.querySelector("#fullScreenButton");
     cornerResetButton.disabled = shouldDisableCornerResetButton;
 
@@ -609,7 +608,7 @@ window.setup = async (config) => {
 
     cornerResetButton.onclick = () => initCorners();
     sourceCorrectButton.onclick = toggleSourceCorrect;
-    aimButton.onclick = toggleAimHelper;
+    guidesButton.onclick = toggleGuides;
     fullScreenButton.onclick = toggleFullScreen;
 
     // Poll for screen resolution changes

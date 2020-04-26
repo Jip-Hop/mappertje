@@ -89,8 +89,8 @@ html > body.sourceCorrectMode #controller {
   justify-content: center;
 }
 
-html > body.aim:not(.sourceCorrectMode) #result:after {
-  content: "Aim Helper";
+html > body.guides:not(.sourceCorrectMode) #result:after {
+  content: "Guides";
   position: absolute;
   top: 0;
   left: 0;
@@ -102,10 +102,10 @@ html > body.aim:not(.sourceCorrectMode) #result:after {
   justify-content: center;
   color: blue;
   background-color: white;
-  background-size: calc(100% / 3 - 2px) calc(100% / 3 - 2px);
+  background-size: calc(100% / 3 + 2px) calc(100% / 3 + 2px);
   background-image: linear-gradient(to right, blue 6px, transparent 6px),
     linear-gradient(to bottom, blue 6px, transparent 6px);
-  background-position: top left;
+  background-position: -6px -6px;
 }
 
 html > body.sourceCorrectMode #result:before {

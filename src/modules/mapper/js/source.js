@@ -127,8 +127,8 @@ window.resetCorners = () => {
   applyTransform();
 };
 
-window.toggleAimHelper = () => {
-  document.body.classList.toggle("aim");
+window.toggleGuides = () => {
+  document.body.classList.toggle("guides");
 }
 
 // Make sourceCorrect available for parent window
