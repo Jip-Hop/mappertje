@@ -18,19 +18,6 @@ var userInactiveTimer;
 // https://www.kirupa.com/html5/drag.htm
 var videoElement, sourceIframe, sourceCorrectButton, cornerResetButton;
 
-const LoadCSS = (cssURL, win) => {
-  return new Promise((resolve) => {
-    const link = win.document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = cssURL;
-    win.document.head.appendChild(link);
-
-    link.onload = () => {
-      resolve();
-    };
-  });
-};
-
 // Get the determinant of given 3 points
 const getDeterminant = (p0, p1, p2) => {
   return (
@@ -450,7 +437,13 @@ window.getCurrentState = () => {
 // Hide those colors on inactive.
 
 window.setup = async (config) => {
-  const { stream, beforeUnloadHandler, unloadHandler, initialState } = config;
+  const {
+    stream,
+    beforeUnloadHandler,
+    unloadHandler,
+    loadErrorHandler,
+    initialState,
+  } = config;
   var initialTargetCorners, initialSourceCorners;
   if (initialState) {
     if (
@@ -486,11 +479,15 @@ window.setup = async (config) => {
   </div>
   `;
 
-  await LoadCSS(getUrl("./css/main.css"), window);
+  await LoadCSS(getUrl("./css/main.css"), document, config.loadErrorHandler);
 
   controlPoints = Array.from(document.body.querySelectorAll(".corner"));
 
-  await loadScript(getUrl("./js/perspective-transform.min.js"), document);
+  await loadScript(
+    getUrl("./js/perspective-transform.min.js"),
+    document,
+    config.loadErrorHandler
+  );
 
   sourceIframe = document.createElement("iframe");
   sourceIframe.id = "sourceIframe";
@@ -500,7 +497,11 @@ window.setup = async (config) => {
   sourceIframe.onload = async () => {
     setupLines(document.body);
 
-    await loadScript(getUrl("./js/source.js"), sourceIframe.contentDocument);
+    await loadScript(
+      getUrl("./js/source.js"),
+      sourceIframe.contentDocument,
+      config.loadErrorHandler
+    );
 
     // Make methods available for iframe
     attachFunctionsToWindow(
@@ -537,6 +538,7 @@ window.setup = async (config) => {
       stream,
       videoElement,
       initialSourceCorners,
+      loadErrorHandler,
       () => {
         sourceIframe.contentWindow.sourceCorrect &&
           sourceIframe.contentWindow.sourceCorrect(correctingSource);

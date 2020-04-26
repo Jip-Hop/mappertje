@@ -65,6 +65,28 @@ const errorHandler = (e, type) => {
   finishSetup();
 };
 
+const loadErrorHandler = (e) => {
+  cleanBody();
+  var message = "Error loading:";
+  const url = e.target && (e.target.src || e.target.href);
+  if (url) {
+    message += `<br><a href="${url}">${url}</a>.`;
+    if (url.startsWith("chrome-extension://")) {
+      const id = url.replace("chrome-extension://", "").split("/").shift();
+      const webstoreUrl = `https://chrome.google.com/webstore/detail/${id}/`;
+      message += `<br>Ensure <a target="_blank" href="${webstoreUrl}">Mappertje</a> is installed and enabled.`;
+    } else {
+      message += `<br>Check your internet connection.`;
+    }
+  } else {
+    message += ".";
+  }
+  const errorEl = document.createElement("p");
+  errorEl.id = "error";
+  errorEl.innerHTML = message;
+  document.body.appendChild(errorEl);
+};
+
 // const beforeUnloadHandler = (e) => {
 //   // Ask for confirmation
 //   e.preventDefault();
@@ -102,6 +124,7 @@ const handleStream = (stream, type) => {
     targetElement: document.body,
     // beforeUnloadHandler: beforeUnloadHandler,
     unloadHandler: unloadHandler,
+    loadErrorHandler: loadErrorHandler,
     initialState: getStateFromStore(),
   });
 };

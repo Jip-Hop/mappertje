@@ -2,9 +2,24 @@ const getUrl = (relative) => {
   return new URL(relative, import.meta.url);
 };
 
-const loadScript = (url, document) => {
+const LoadCSS = (url, document, errorHandler) => {
+  return new Promise((resolve) => {
+    const link = document.createElement("link");
+    typeof errorHandler === "function" && (link.onerror = errorHandler);
+    link.rel = "stylesheet";
+    link.href = url;
+    document.head.appendChild(link);
+
+    link.onload = () => {
+      resolve();
+    };
+  });
+};
+
+const loadScript = (url, document, errorHandler) => {
   return new Promise((resolve) => {
     const script = document.createElement("script");
+    typeof errorHandler === "function" && (script.onerror = errorHandler);
     script.onload = resolve;
     script.src = url;
     document.head.appendChild(script);
@@ -25,11 +40,15 @@ export default function (config) {
   iframe.setAttribute("allowFullScreen", "");
 
   iframe.onload = async () => {
-    await loadScript(getUrl("./js/main.js"), iframe.contentWindow.document);
+    await loadScript(
+      getUrl("./js/main.js"),
+      iframe.contentDocument,
+      config.loadErrorHandler
+    );
 
     // Make methods available for iframe
     attachFunctionsToWindow(
-      [loadScript, getUrl, attachFunctionsToWindow],
+      [LoadCSS, loadScript, getUrl, attachFunctionsToWindow],
       iframe.contentWindow
     );
 

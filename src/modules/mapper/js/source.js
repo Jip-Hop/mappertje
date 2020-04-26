@@ -142,7 +142,13 @@ window.sourceCorrect = (newState) => {
 };
 
 // Make setup available for parent window
-window.setup = async (stream, video, initialCorners, callback) => {
+window.setup = async (
+  stream,
+  video,
+  initialCorners,
+  loadErrorHandler,
+  callback
+) => {
   document.body.innerHTML = `
   <div id="result">
     <video id="corrected-video" muted autoplay />
@@ -173,7 +179,7 @@ window.setup = async (stream, video, initialCorners, callback) => {
   </div>
 `;
 
-  await LoadCSS(getUrl("./css/source.css"), window);
+  await LoadCSS(getUrl("./css/source.css"), document, loadErrorHandler);
 
   controllerVid = video;
   controllerVid.muted = true;
