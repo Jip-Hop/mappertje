@@ -1,13 +1,234 @@
+import html from "./join-template.js";
+
 const inactiveDelay = 2000;
-const previewPaddingSize = 40; // in pixels, use var not const else source.js can't access this value
+const previewPaddingSize = 40; // in pixels
+
+const template = html`
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      -webkit-user-select: none; /* Safari */
+      user-select: none;
+      font-family: sans-serif;
+    }
+
+    html,
+    html > body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    html > body {
+      position: relative;
+    }
+
+    html > body.correctingSource:not(.transition) {
+      overflow: auto;
+    }
+
+    #sourceIframe {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      transform-origin: 0 0;
+      overflow: hidden;
+    }
+
+    .corner,
+    .line,
+    #buttonsContainer {
+      transition-property: opacity;
+      transition-duration: 0.25s;
+      transition-timing-function: ease;
+    }
+
+    .corner {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      background-color: rgba(0, 0, 255, 0.5);
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 1000'%3e%3cpath d='M908.1 264.8V10H10v898.1h254.8V428.5L826.3 990 990 826.3 428.5 264.8z' fill='%23fff'/%3e%3c/svg%3e");
+      border-radius: 100%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      font-size: 50px;
+      cursor: grab;
+      z-index: 1;
+      background-size: 25%;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .corner.tr {
+      transform: translate(-50%, -50%) rotate(90deg);
+    }
+
+    .corner.br {
+      transform: translate(-50%, -50%) rotate(180deg);
+    }
+
+    .corner.bl {
+      transform: translate(-50%, -50%) rotate(-90deg);
+    }
+
+    .corner.grabbing {
+      cursor: grabbing;
+    }
+
+    html > body:not(.polygonError) .corner.grabbing {
+      background-image: none;
+      opacity: 0.5;
+      z-index: unset;
+    }
+
+    iframe {
+      pointer-events: none;
+    }
+
+    .correctingSource iframe {
+      pointer-events: all;
+      transform: none !important;
+    }
+
+    html > body.transition * {
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+    html > body.transition iframe {
+      opacity: 1 !important;
+      transition: transform 0.5s ease;
+    }
+
+    .line {
+      position: absolute;
+      background: white;
+      pointer-events: none;
+      border-radius: 2px;
+      border-left: 2px solid transparent;
+      box-shadow: 0 0 1px rgba(255, 255, 255, 0); /* anti aliasing for Chrome on Windows */
+    }
+
+    #line1,
+    #line3 {
+      margin-left: -1px;
+    }
+
+    #line2 {
+      margin-left: -2px;
+    }
+
+    .boundsError .line {
+      background: orange;
+    }
+
+    .boundsError .corner {
+      background-color: rgba(255, 165, 0, 0.5);
+    }
+
+    .polygonError .line {
+      background: red;
+    }
+
+    .polygonError .corner {
+      background-color: rgba(255, 0, 0, 0.5);
+    }
+
+    .polygonError:not(.correctingSource) iframe {
+      visibility: hidden;
+    }
+
+    #buttonsContainer {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #buttonsContainer > button {
+      position: relative;
+      z-index: 1;
+      padding: 5px;
+      margin: 2.5px;
+      background: white;
+      color: #aaa;
+    }
+
+    #buttonsContainer > button:not(:disabled) {
+      cursor: pointer;
+      background: blue;
+      color: white;
+    }
+
+    #buttonsContainer > button > .shortcuts {
+      font-family: monospace;
+      color: darkgray;
+    }
+
+    html
+      > body:not(.correctingSource)
+      #sourceCorrectButton
+      > span.sourceCorrect {
+      display: none;
+    }
+
+    html > body.correctingSource > *:not(.sourceCorrect) {
+      display: none;
+    }
+
+    html > body.correctingSource #guidesButton {
+      display: none;
+    }
+
+    html
+      > body.correctingSource
+      #sourceCorrectButton
+      > *:not(.sourceCorrect):not(.shortcuts) {
+      display: none;
+    }
+
+    .inactive .line,
+    .inactive .corner,
+    html > body.inactive:not(.correctingSource) #buttonsContainer {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    html > body.inactive,
+    html > body.inactive * {
+      cursor: none;
+    }
+  </style>
+  <div id="marker0" class="corner tl"></div>
+  <div id="marker2" class="corner tr"></div>
+  <div id="marker4" class="corner bl"></div>
+  <div id="marker6" class="corner br"></div>
+  <div id="buttonsContainer" class="sourceCorrect">
+    <button id="cornerReset">
+      Reset Corners <span class="shortcuts">R</span>
+    </button>
+    <button id="sourceCorrectButton">
+      Correct <span>Source</span> <span class="sourceCorrect">Target</span>
+      <span class="shortcuts">Tab</span>
+    </button>
+    <button id="guidesButton">
+      Toggle Guides <span class="shortcuts">G</span>
+    </button>
+    <button id="fullScreenButton">
+      Full Screen Toggle <span class="shortcuts">Enter</span>
+    </button>
+  </div>
+`;
 
 export default function setupMain(
   window,
   config,
-  loadCSS,
   setupSource,
-  fixPerspective,
-  getUrl
+  fixPerspective
 ) {
   const document = window.document;
   var corners;
@@ -241,7 +462,9 @@ export default function setupMain(
       const targetY = e.pageY - grabOffset.y;
       shouldDisableCornerResetButton = false;
       cornerResetButton.disabled = shouldDisableCornerResetButton;
-      const cornerIndex = window.parseInt(currentCorner.id.slice("marker".length));
+      const cornerIndex = window.parseInt(
+        currentCorner.id.slice("marker".length)
+      );
       // Don't drag out of viewport
       if (targetX <= document.documentElement.clientWidth && targetX >= 0) {
         corners[cornerIndex] = targetX;
@@ -477,7 +700,7 @@ export default function setupMain(
       stream,
       beforeUnloadHandler,
       unloadHandler,
-      loadErrorHandler,
+
       initialState,
     } = config;
 
@@ -500,28 +723,8 @@ export default function setupMain(
         initialSourceCorners = initialState.sourceCorners;
       }
     }
-    document.body.innerHTML = `
-  <div id="marker0" class="corner tl"></div>
-  <div id="marker2" class="corner tr"></div>
-  <div id="marker4" class="corner bl"></div>
-  <div id="marker6" class="corner br"></div>
-  <div id="buttonsContainer" class="sourceCorrect">
-    <button id="cornerReset">
-    Reset Corners <span class="shortcuts">R</span>
-    </button>
-    <button id="sourceCorrectButton">
-      Correct <span>Source</span> <span class="sourceCorrect">Target</span> <span class="shortcuts">Tab</span>
-    </button>
-    <button id="guidesButton">
-      Toggle Guides <span class="shortcuts">G</span>
-    </button>
-    <button id="fullScreenButton">
-      Full Screen Toggle <span class="shortcuts">Enter</span>
-    </button>
-  </div>
-  `;
 
-    await loadCSS(getUrl("./css/main.css"), document, config.loadErrorHandler);
+    document.body.innerHTML = template;
 
     window.controlPoints = window.Array.from(
       document.body.querySelectorAll(".corner")
@@ -563,13 +766,11 @@ export default function setupMain(
             sourceIframe.contentWindow.sourceCorrect &&
             sourceIframe.contentWindow.sourceCorrect(correctingSource);
         },
-        loadCSS,
         transform2d,
         setupLines,
         adjustLines,
         keydownHandler,
-        setupCommonMouseHandlers,
-        getUrl
+        setupCommonMouseHandlers
       );
 
       document.getElementById("buttonsContainer").style.height =
