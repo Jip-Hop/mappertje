@@ -1,4 +1,18 @@
-export default function setupSource(window) {
+export default function setupSource(
+  window,
+  stream,
+  video,
+  initialCorners,
+  loadErrorHandler,
+  callback,
+  loadCSS,
+  transform2d,
+  setupLines,
+  adjustLines,
+  keydownHandler,
+  setupCommonMouseHandlers,
+  getUrl
+) {
   const document = window.document;
 
   var sourceCorrectMode = false;
@@ -65,8 +79,8 @@ export default function setupSource(window) {
       from.push(absoluteY);
     });
 
-    window.transform2d(correctedVid, from, to);
-    window.adjustLines(lineCorners, document);
+    transform2d(correctedVid, from, to);
+    adjustLines(lineCorners, document);
   };
 
   const update = () => {
@@ -163,7 +177,7 @@ export default function setupSource(window) {
   };
 
   // Make setup available for parent window
-  window.setup = async (
+  const setup = async (
     stream,
     video,
     initialCorners,
@@ -200,11 +214,7 @@ export default function setupSource(window) {
   </div>
 `;
 
-    await window.loadCSS(
-      window.getUrl("./css/source.css"),
-      document,
-      loadErrorHandler
-    );
+    await loadCSS(getUrl("./css/source.css"), document, loadErrorHandler);
 
     controllerVid = video;
     controllerVid.muted = true;
@@ -216,7 +226,7 @@ export default function setupSource(window) {
 
     const controller = document.getElementById("controller");
     controller.style.padding = parent.previewPaddingSize + "px";
-    window.setupLines(controller);
+    setupLines(controller);
 
     correctedVid = document.querySelector("#corrected-video");
 
@@ -256,10 +266,10 @@ export default function setupSource(window) {
       applyTransform();
     }
 
-    window.setupCommonMouseHandlers(window);
+    setupCommonMouseHandlers(window);
 
     window.addEventListener("mousemove", move);
-    window.addEventListener("keydown", window.keydownHandler);
+    window.addEventListener("keydown", keydownHandler);
 
     window.addEventListener("resize", update);
     controllerVid.addEventListener("resize", update);
@@ -267,4 +277,6 @@ export default function setupSource(window) {
 
     typeof callback === "function" && callback();
   };
+
+  setup(stream, video, initialCorners, loadErrorHandler, callback);
 }

@@ -1,6 +1,11 @@
-export default function setupMain(window) {
-  console.log("MAIN", window);
-
+export default function setupMain(
+  window,
+  config,
+  loadCSS,
+  setupSource,
+  fixPerspective,
+  getUrl
+) {
   const document = window.document;
 
   const inactiveDelay = 2000;
@@ -107,7 +112,7 @@ export default function setupMain(window) {
   };
 
   const transform2d = (elt, srcCorners, dstCorners) => {
-    const H = window.fixPerspective(srcCorners, dstCorners);
+    const H = fixPerspective(srcCorners, dstCorners);
     const t = "matrix3d(" + H.join(", ") + ")";
     elt.style.transform = t;
   };
@@ -372,7 +377,7 @@ export default function setupMain(window) {
     }
     clearTimeout(userInactiveTimer);
     document.body.classList.remove("inactive");
-    userInactiveTimer = setTimeout(() => {
+    userInactiveTimer = window.setTimeout(() => {
       document.body.classList.add("inactive");
     }, inactiveDelay);
   };
@@ -467,7 +472,7 @@ export default function setupMain(window) {
   // also put those 4 colors in the corners of the black background as reference.
   // Hide those colors on inactive.
 
-  window.setup = async (config) => {
+  const setup = async (config) => {
     const {
       stream,
       beforeUnloadHandler,
@@ -516,11 +521,7 @@ export default function setupMain(window) {
   </div>
   `;
 
-    await window.loadCSS(
-      window.getUrl("./css/main.css"),
-      document,
-      config.loadErrorHandler
-    );
+    await loadCSS(getUrl("./css/main.css"), document, config.loadErrorHandler);
 
     window.controlPoints = Array.from(
       document.body.querySelectorAll(".corner")
@@ -533,28 +534,6 @@ export default function setupMain(window) {
 
     sourceIframe.onload = async () => {
       setupLines(document.body);
-
-      // await loadScript(
-      //   getUrl("./js/source.js"),
-      //   sourceIframe.contentDocument,
-      //   config.loadErrorHandler
-      // );
-
-      // Make methods available for iframe
-      window.attachFunctionsToWindow(
-        [
-          window.loadCSS,
-          transform2d,
-          setupLines,
-          adjustLines,
-          keydownHandler,
-          setupCommonMouseHandlers,
-          window.getUrl,
-        ],
-        sourceIframe.contentWindow
-      );
-
-      window.setupSource(sourceIframe.contentWindow);
 
       // TODO: also handle other sources, like video element.
       // In case of a video element we'd have to use a canvas inside
@@ -571,7 +550,8 @@ export default function setupMain(window) {
       };
       videoElement.addEventListener("canplay", firstPlayHandler);
 
-      sourceIframe.contentWindow.setup(
+      setupSource(
+        sourceIframe.contentWindow,
         currentStream,
         videoElement,
         initialSourceCorners,
@@ -581,7 +561,14 @@ export default function setupMain(window) {
             sourceIframe.contentWindow &&
             sourceIframe.contentWindow.sourceCorrect &&
             sourceIframe.contentWindow.sourceCorrect(correctingSource);
-        }
+        },
+        loadCSS,
+        transform2d,
+        setupLines,
+        adjustLines,
+        keydownHandler,
+        setupCommonMouseHandlers,
+        getUrl
       );
 
       document.getElementById("buttonsContainer").style.height =
@@ -590,7 +577,6 @@ export default function setupMain(window) {
         "#cornerReset"
       );
       sourceCorrectButton = document.querySelector("#sourceCorrectButton");
-      console.log(document, document.querySelector("#guidesButton"));
 
       const guidesButton = document.querySelector("#guidesButton");
       const fullScreenButton = document.querySelector("#fullScreenButton");
@@ -604,7 +590,7 @@ export default function setupMain(window) {
       fullScreenButton.onclick = toggleFullScreen;
 
       // Poll for screen resolution changes
-      setInterval(updateResolution, 1000);
+      window.setInterval(updateResolution, 1000);
 
       window.onresize = () => {
         shouldDisableCornerResetButton = false;
@@ -637,4 +623,6 @@ export default function setupMain(window) {
     sourceIframe.src = "about:blank";
     document.body.prepend(sourceIframe);
   };
+
+  setup(config);
 }

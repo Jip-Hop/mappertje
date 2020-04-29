@@ -20,12 +20,6 @@ const loadCSS = (url, document, errorHandler) => {
   });
 };
 
-const attachFunctionsToWindow = (functions, win) => {
-  for (let func of functions) {
-    win[func.name] = func;
-  }
-};
-
 export default function (config) {
   const iframe = document.createElement("iframe");
   iframe.style.width = iframe.style.height = "100%";
@@ -34,16 +28,14 @@ export default function (config) {
   iframe.setAttribute("allowFullScreen", "");
 
   iframe.onload = async () => {
-
-    // Make methods available for iframe
-    attachFunctionsToWindow(
-      [loadCSS, setupSource, fixPerspective, getUrl, attachFunctionsToWindow],
-      iframe.contentWindow
+    setupMain(
+      iframe.contentWindow,
+      config,
+      loadCSS,
+      setupSource,
+      fixPerspective,
+      getUrl
     );
-
-    setupMain(iframe.contentWindow);
-
-    iframe.contentWindow.setup(config);
   };
 
   config.targetElement.appendChild(iframe);
