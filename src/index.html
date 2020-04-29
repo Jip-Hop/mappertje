@@ -107,10 +107,11 @@
       }
 
       #error {
+        color: red;
         margin-top: 10px;
       }
 
-      #error, #error > a:any-link {
+      #error > a:any-link {
         color: red;
       }
 
@@ -146,14 +147,20 @@
       <button disabled id="screen">Screen</button>
       <p id="footnote">Projection mapping tool.</p>
       <p id="warning"></p>
-      <p id="error">
-        Error: Mappertje won't work in this browser. Supported platforms are the
-        Chrome and Firefox desktop browsers for Windows 10 and MacOS.
-      </p>
+      <p id="error"></p>
     </div>
     <script nomodule>
       document.body.classList.add("setup");
     </script>
     <script type="module" src="./modules/index.js"></script>
+    <script>
+      window.onload = function () {
+
+        if (!window.mapper) {
+          document.getElementById("error").innerText =
+            "Error: Failed to load Mappertje. Supported platforms are the Chrome and Firefox desktop browsers for Windows 10 and MacOS.";
+        }
+      };
+    </script>
   </body>
 </html>

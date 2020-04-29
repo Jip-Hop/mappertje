@@ -700,7 +700,6 @@ export default function setupMain(
       stream,
       beforeUnloadHandler,
       unloadHandler,
-
       initialState,
     } = config;
 
@@ -759,7 +758,6 @@ export default function setupMain(
         videoElement,
         initialSourceCorners,
         previewPaddingSize,
-        loadErrorHandler,
         () => {
           sourceIframe &&
             sourceIframe.contentWindow &&

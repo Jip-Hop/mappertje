@@ -1,10 +1,7 @@
 import mapper from "./mapper/index.js";
-
-const isChrome = navigator.userAgent.toLowerCase().indexOf("chrome") > -1;
+const isChrome = window.chrome && navigator.vendor === "Google Inc.";
 const isFirefox = navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
-const isSupportedPlatform = ["MacIntel", "Win32"].indexOf(
-  navigator.platform > -1
-);
+const isSupportedPlatform = ["MacIntel", "Win32"].indexOf(navigator.platform) > -1;
 
 var hash, myMapper;
 
@@ -65,28 +62,6 @@ const errorHandler = (e, type) => {
   finishSetup();
 };
 
-const loadErrorHandler = (e) => {
-  cleanBody();
-  var message = "Error loading:";
-  const url = e.target && (e.target.src || e.target.href);
-  if (url) {
-    message += `<br><a href="${url}">${url}</a>.`;
-    if (url.startsWith("chrome-extension://")) {
-      const id = url.replace("chrome-extension://", "").split("/").shift();
-      const webstoreUrl = `https://chrome.google.com/webstore/detail/${id}/`;
-      message += `<br>Ensure <a target="_blank" href="${webstoreUrl}">Mappertje</a> is installed and enabled.`;
-    } else {
-      message += `<br>Check your internet connection.`;
-    }
-  } else {
-    message += ".";
-  }
-  const errorEl = document.createElement("p");
-  errorEl.id = "error";
-  errorEl.innerHTML = message;
-  document.body.appendChild(errorEl);
-};
-
 // const beforeUnloadHandler = (e) => {
 //   // Ask for confirmation
 //   e.preventDefault();
@@ -124,7 +99,6 @@ const handleStream = (stream, type) => {
     targetElement: document.body,
     // beforeUnloadHandler: beforeUnloadHandler,
     unloadHandler: unloadHandler,
-    loadErrorHandler: loadErrorHandler,
     initialState: getStateFromStore(),
   });
 };
@@ -236,6 +210,9 @@ const screenClickHandler = () => {
 };
 
 const init = () => {
+  // Allow other script tags to access mapper,
+  // so they can check if mapper loaded correctly.
+  window.mapper = mapper;
   // Clear default error message
   document.getElementById("error").innerText = "";
 
@@ -246,7 +223,7 @@ const init = () => {
   const screenButton = document.getElementById("screen");
   screenButton.disabled = false;
   screenButton.onclick = screenClickHandler;
-
+  console.log("INIT", isSupportedPlatform, isChrome, isFirefox);
   if (!(isSupportedPlatform && (isChrome || isFirefox))) {
     document.getElementById("warning").innerText =
       "Warning: Mappertje may not work on this platform. Supported platforms are the Chrome and Firefox desktop browsers for Windows 10 and MacOS.";

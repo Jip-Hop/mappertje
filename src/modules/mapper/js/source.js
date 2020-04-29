@@ -207,7 +207,6 @@ export default function setupSource(
   video,
   initialCorners,
   previewPaddingSize,
-  loadErrorHandler,
   callback,
   transform2d,
   setupLines,
@@ -387,7 +386,6 @@ export default function setupSource(
     stream,
     video,
     initialCorners,
-    loadErrorHandler,
     callback
   ) => {
     document.body.innerHTML = template;
@@ -454,5 +452,5 @@ export default function setupSource(
     typeof callback === "function" && callback();
   };
 
-  setup(stream, video, initialCorners, loadErrorHandler, callback);
+  setup(stream, video, initialCorners, callback);
 }
