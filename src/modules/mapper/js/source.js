@@ -382,12 +382,7 @@ export default function setupSource(
   };
 
   // Make setup available for parent window
-  const setup = async (
-    stream,
-    video,
-    initialCorners,
-    callback
-  ) => {
+  const setup = async () => {
     document.body.innerHTML = template;
 
     controllerVid = video;
@@ -452,5 +447,5 @@ export default function setupSource(
     typeof callback === "function" && callback();
   };
 
-  setup(stream, video, initialCorners, callback);
+  setup();
 }

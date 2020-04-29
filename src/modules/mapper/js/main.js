@@ -695,7 +695,7 @@ export default function setupMain(
   // also put those 4 colors in the corners of the black background as reference.
   // Hide those colors on inactive.
 
-  const setup = async (config) => {
+  const setup = async () => {
     const {
       stream,
       beforeUnloadHandler,
@@ -824,5 +824,5 @@ export default function setupMain(
     document.body.prepend(sourceIframe);
   };
 
-  setup(config);
+  setup();
 }
