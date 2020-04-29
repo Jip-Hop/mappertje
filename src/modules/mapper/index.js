@@ -1,8 +1,12 @@
+import fixPerspective from "./js/css3-perspective.js";
+import setupMain from "./js/main.js";
+import setupSource from "./js/source.js";
+
 const getUrl = (relative) => {
   return new URL(relative, import.meta.url);
 };
 
-const LoadCSS = (url, document, errorHandler) => {
+const loadCSS = (url, document, errorHandler) => {
   return new Promise((resolve) => {
     const link = document.createElement("link");
     typeof errorHandler === "function" && (link.onerror = errorHandler);
@@ -13,16 +17,6 @@ const LoadCSS = (url, document, errorHandler) => {
     link.onload = () => {
       resolve();
     };
-  });
-};
-
-const loadScript = (url, document, errorHandler) => {
-  return new Promise((resolve) => {
-    const script = document.createElement("script");
-    typeof errorHandler === "function" && (script.onerror = errorHandler);
-    script.onload = resolve;
-    script.src = url;
-    document.head.appendChild(script);
   });
 };
 
@@ -40,17 +34,14 @@ export default function (config) {
   iframe.setAttribute("allowFullScreen", "");
 
   iframe.onload = async () => {
-    await loadScript(
-      getUrl("./js/main.js"),
-      iframe.contentDocument,
-      config.loadErrorHandler
-    );
 
     // Make methods available for iframe
     attachFunctionsToWindow(
-      [LoadCSS, loadScript, getUrl, attachFunctionsToWindow],
+      [loadCSS, setupSource, fixPerspective, getUrl, attachFunctionsToWindow],
       iframe.contentWindow
     );
+
+    setupMain(iframe.contentWindow);
 
     iframe.contentWindow.setup(config);
   };
