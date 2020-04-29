@@ -3,6 +3,7 @@ export default function setupSource(
   stream,
   video,
   initialCorners,
+  previewPaddingSize,
   loadErrorHandler,
   callback,
   loadCSS,
@@ -14,20 +15,17 @@ export default function setupSource(
   getUrl
 ) {
   const document = window.document;
-
   var sourceCorrectMode = false;
-  var controllerVid, correctedVid;
-
+  var controllerVid;
+  var correctedVid;
   const grabOffset = { x: 0, y: 0 };
   var currentCorner;
-
   var shouldDisableCornerResetButton = true;
-
   const initialPointsPosition = [];
 
   const setCurrentCorner = (newCorner) => {
     currentCorner = newCorner;
-  }
+  };
 
   const rectWithoutTransform = (el) => {
     var offsetLeft = 0,
@@ -89,6 +87,8 @@ export default function setupSource(
   };
 
   const update = () => {
+    const Math = window.Math;
+
     const ratio = controllerVid.videoHeight / controllerVid.videoWidth;
 
     const box = document.querySelector("#video-and-corners-wrapper");
@@ -230,14 +230,14 @@ export default function setupSource(
       .appendChild(controllerVid);
 
     const controller = document.getElementById("controller");
-    controller.style.padding = parent.previewPaddingSize + "px";
+    controller.style.padding = previewPaddingSize + "px";
     setupLines(controller);
 
     correctedVid = document.querySelector("#corrected-video");
 
     controllerVid.style.transform = "";
     correctedVid.style.transformOrigin = "0 0";
-    window.controlPoints = Array.from(
+    window.controlPoints = window.Array.from(
       controllerVid.parentNode.querySelectorAll(".corner")
     );
 

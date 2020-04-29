@@ -1,3 +1,6 @@
+const inactiveDelay = 2000;
+const previewPaddingSize = 40; // in pixels, use var not const else source.js can't access this value
+
 export default function setupMain(
   window,
   config,
@@ -7,32 +10,25 @@ export default function setupMain(
   getUrl
 ) {
   const document = window.document;
-
-  const inactiveDelay = 2000;
-
-  var previewPaddingSize = 40; // in pixels, use var not const else source.js can't access this value
-
   var corners;
   var currentCorner;
   const grabOffset = { x: 0, y: 0 };
-
   var polygonError = false;
   var boundsError = false;
-  var screenWidth, screenHeight;
-
+  var screenWidth;
+  var screenHeight;
   var currentStream;
-
   var correctingSource = false;
   var shouldDisableCornerResetButton = true;
-
   var userInactiveTimer;
-
-  // https://www.kirupa.com/html5/drag.htm
-  var videoElement, sourceIframe, sourceCorrectButton, cornerResetButton;
+  var videoElement;
+  var sourceIframe;
+  var sourceCorrectButton;
+  var cornerResetButton;
 
   const setCurrentCorner = (newCorner) => {
     currentCorner = newCorner;
-  }
+  };
 
   // Get the determinant of given 3 points
   const getDeterminant = (p0, p1, p2) => {
@@ -121,8 +117,9 @@ export default function setupMain(
     elt.style.transform = t;
   };
 
-  // https://stackoverflow.com/a/36045181
   const adjustLine = (from, to, line) => {
+    const Math = window.Math;
+
     var fT = from.y;
     var tT = to.y;
     var fL = from.x;
@@ -189,14 +186,14 @@ export default function setupMain(
   const updateResolution = () => {
     var changed = false;
 
-    if (screenWidth !== screen.width) {
-      screenWidth = screen.width;
+    if (screenWidth !== window.screen.width) {
+      screenWidth = window.screen.width;
       sourceIframe.style.width = screenWidth + "px";
       changed = true;
     }
 
-    if (screenHeight !== screen.height) {
-      screenHeight = screen.height;
+    if (screenHeight !== window.screen.height) {
+      screenHeight = window.screen.height;
       sourceIframe.style.height = screenHeight + "px";
       changed = true;
     }
@@ -225,14 +222,14 @@ export default function setupMain(
 
     adjustLines(to, document);
 
-    const currentpolygonError = haspolygonError();
-    if (currentpolygonError !== polygonError) {
-      if (currentpolygonError) {
+    const currentPolygonError = haspolygonError();
+    if (currentPolygonError !== polygonError) {
+      if (currentPolygonError) {
         document.body.classList.add("polygonError");
       } else {
         document.body.classList.remove("polygonError");
       }
-      polygonError = currentpolygonError;
+      polygonError = currentPolygonError;
     }
   };
 
@@ -244,15 +241,13 @@ export default function setupMain(
       const targetY = e.pageY - grabOffset.y;
       shouldDisableCornerResetButton = false;
       cornerResetButton.disabled = shouldDisableCornerResetButton;
-      const cornetIndex = parseInt(
-        currentCorner.id.slice("marker".length)
-      );
+      const cornerIndex = window.parseInt(currentCorner.id.slice("marker".length));
       // Don't drag out of viewport
       if (targetX <= document.documentElement.clientWidth && targetX >= 0) {
-        corners[cornetIndex] = targetX;
+        corners[cornerIndex] = targetX;
       }
       if (targetY <= document.documentElement.clientHeight && targetY >= 0) {
-        corners[cornetIndex + 1] = targetY;
+        corners[cornerIndex + 1] = targetY;
       }
       update();
     }
@@ -370,7 +365,6 @@ export default function setupMain(
   };
 
   const scheduleUserInactive = () => {
-    console.log("scheduleUserInactive");
     if (!document.hasFocus()) {
       setInactiveImmediately();
       return;
@@ -381,7 +375,6 @@ export default function setupMain(
       return;
     }
     window.clearTimeout(userInactiveTimer);
-    console.log("clearTimeout");
     document.body.classList.remove("inactive");
     userInactiveTimer = window.setTimeout(() => {
       document.body.classList.add("inactive");
@@ -494,14 +487,14 @@ export default function setupMain(
     if (initialState) {
       if (
         initialState.targetCorners &&
-        Array.isArray(initialState.targetCorners) &&
+        window.Array.isArray(initialState.targetCorners) &&
         initialState.targetCorners.length === 8
       ) {
         initialTargetCorners = initialState.targetCorners;
       }
       if (
         initialState.sourceCorners &&
-        Array.isArray(initialState.sourceCorners) &&
+        window.Array.isArray(initialState.sourceCorners) &&
         initialState.sourceCorners.length === 4
       ) {
         initialSourceCorners = initialState.sourceCorners;
@@ -530,7 +523,7 @@ export default function setupMain(
 
     await loadCSS(getUrl("./css/main.css"), document, config.loadErrorHandler);
 
-    window.controlPoints = Array.from(
+    window.controlPoints = window.Array.from(
       document.body.querySelectorAll(".corner")
     );
 
@@ -562,6 +555,7 @@ export default function setupMain(
         currentStream,
         videoElement,
         initialSourceCorners,
+        previewPaddingSize,
         loadErrorHandler,
         () => {
           sourceIframe &&
