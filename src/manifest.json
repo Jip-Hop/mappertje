@@ -1,6 +1,6 @@
 {
   "name": "Mappertje",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "manifest_version": 2,
   "description": "Projection mapping: correct perspective & crop a source (camera or screen) to map it onto a rectangular surface with corner pinning.",
   "icons": {
