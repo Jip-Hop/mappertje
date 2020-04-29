@@ -18,11 +18,16 @@ export default function setupSource(
   var sourceCorrectMode = false;
   var controllerVid, correctedVid;
 
-  window.grabOffset = { x: 0, y: 0 };
+  const grabOffset = { x: 0, y: 0 };
+  var currentCorner;
 
   var shouldDisableCornerResetButton = true;
 
   const initialPointsPosition = [];
+
+  const setCurrentCorner = (newCorner) => {
+    currentCorner = newCorner;
+  }
 
   const rectWithoutTransform = (el) => {
     var offsetLeft = 0,
@@ -105,14 +110,14 @@ export default function setupSource(
   };
 
   const move = (e) => {
-    if (window.currentCorner) {
+    if (currentCorner) {
       shouldDisableCornerResetButton = false;
       window.parent.cornerResetButton.disabled = shouldDisableCornerResetButton;
 
-      const targetX = e.pageX - window.grabOffset.x;
-      const targetY = e.pageY - window.grabOffset.y;
+      const targetX = e.pageX - grabOffset.x;
+      const targetY = e.pageY - grabOffset.y;
 
-      const parent = window.currentCorner.parentNode;
+      const parent = currentCorner.parentNode;
       const parentRect = rectWithoutTransform(parent);
 
       // Get the position of the control point relative to the control image
@@ -124,10 +129,10 @@ export default function setupSource(
 
       // Don't drag out of parent
       if (left <= 100 && left >= 0) {
-        window.currentCorner.style.left = left.toFixed(20) + "%";
+        currentCorner.style.left = left.toFixed(20) + "%";
       }
       if (top <= 100 && top >= 0) {
-        window.currentCorner.style.top = top.toFixed(20) + "%";
+        currentCorner.style.top = top.toFixed(20) + "%";
       }
       applyTransform();
     }
@@ -266,7 +271,7 @@ export default function setupSource(
       applyTransform();
     }
 
-    setupCommonMouseHandlers(window);
+    setupCommonMouseHandlers(window, grabOffset, setCurrentCorner);
 
     window.addEventListener("mousemove", move);
     window.addEventListener("keydown", keydownHandler);

@@ -6,6 +6,8 @@ const getUrl = (relative) => {
   return new URL(relative, import.meta.url);
 };
 
+// TODO: load CSS only once to a string,
+// also load HTML (as template)
 const loadCSS = (url, document, errorHandler) => {
   return new Promise((resolve) => {
     const link = document.createElement("link");
@@ -40,5 +42,6 @@ export default function (config) {
 
   config.targetElement.appendChild(iframe);
 
+  // TODO: make a setup ready callback
   return iframe.contentWindow;
 }

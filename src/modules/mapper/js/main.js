@@ -13,8 +13,8 @@ export default function setupMain(
   var previewPaddingSize = 40; // in pixels, use var not const else source.js can't access this value
 
   var corners;
-
-  window.grabOffset = { x: 0, y: 0 };
+  var currentCorner;
+  const grabOffset = { x: 0, y: 0 };
 
   var polygonError = false;
   var boundsError = false;
@@ -29,6 +29,10 @@ export default function setupMain(
 
   // https://www.kirupa.com/html5/drag.htm
   var videoElement, sourceIframe, sourceCorrectButton, cornerResetButton;
+
+  const setCurrentCorner = (newCorner) => {
+    currentCorner = newCorner;
+  }
 
   // Get the determinant of given 3 points
   const getDeterminant = (p0, p1, p2) => {
@@ -235,13 +239,13 @@ export default function setupMain(
   const move = (e) => {
     scheduleUserInactive();
 
-    if (window.currentCorner) {
-      const targetX = e.pageX - window.grabOffset.x;
-      const targetY = e.pageY - window.grabOffset.y;
+    if (currentCorner) {
+      const targetX = e.pageX - grabOffset.x;
+      const targetY = e.pageY - grabOffset.y;
       shouldDisableCornerResetButton = false;
       cornerResetButton.disabled = shouldDisableCornerResetButton;
       const cornetIndex = parseInt(
-        window.currentCorner.id.slice("marker".length)
+        currentCorner.id.slice("marker".length)
       );
       // Don't drag out of viewport
       if (targetX <= document.documentElement.clientWidth && targetX >= 0) {
@@ -312,7 +316,7 @@ export default function setupMain(
   };
 
   const setInactiveImmediately = () => {
-    clearTimeout(userInactiveTimer);
+    window.clearTimeout(userInactiveTimer);
     document.body.classList.add("inactive");
   };
 
@@ -366,6 +370,7 @@ export default function setupMain(
   };
 
   const scheduleUserInactive = () => {
+    console.log("scheduleUserInactive");
     if (!document.hasFocus()) {
       setInactiveImmediately();
       return;
@@ -375,7 +380,8 @@ export default function setupMain(
     if (correctingSource) {
       return;
     }
-    clearTimeout(userInactiveTimer);
+    window.clearTimeout(userInactiveTimer);
+    console.log("clearTimeout");
     document.body.classList.remove("inactive");
     userInactiveTimer = window.setTimeout(() => {
       document.body.classList.add("inactive");
@@ -392,10 +398,10 @@ export default function setupMain(
     }
   };
 
-  const setupCommonMouseHandlers = (win) => {
+  const setupCommonMouseHandlers = (win, grabOffset, setCurrentCorner) => {
     win.addEventListener("mouseup", () => {
       scheduleUserInactive();
-      win.currentCorner = null;
+      setCurrentCorner(null);
       win.document.querySelectorAll(".grabbing").forEach((el) => {
         el.classList.remove("grabbing");
       });
@@ -404,7 +410,7 @@ export default function setupMain(
     win.addEventListener("mousedown", (e) => {
       scheduleUserInactive();
       if (win.controlPoints.indexOf(e.target) > -1) {
-        win.currentCorner = e.target;
+        setCurrentCorner(e.target);
         const target = e.target;
         target.classList.add("grabbing");
 
@@ -413,7 +419,8 @@ export default function setupMain(
         var x = e.clientX - rect.left - rect.width / 2;
         var y = e.clientY - rect.top - rect.height / 2;
 
-        win.grabOffset = { x: x, y: y };
+        grabOffset.x = x;
+        grabOffset.y = y;
       }
     });
   };
@@ -603,7 +610,7 @@ export default function setupMain(
       };
 
       window.addEventListener("mousemove", move);
-      setupCommonMouseHandlers(window);
+      setupCommonMouseHandlers(window, grabOffset, setCurrentCorner);
       window.addEventListener("keydown", keydownHandler);
       window.addEventListener("blur", () => {
         setInactiveImmediately();
