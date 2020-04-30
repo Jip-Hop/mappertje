@@ -8,6 +8,8 @@ Projection mapping tool for Chrome and Firefox. Apply perspective correction and
 
 ## Download the [browser extension](https://chrome.google.com/webstore/detail/mappertje/okokapnhegofpbaeogkmbcaflmgiopkg) from the Chrome Web Store
 
+The Mappertje extension integrates directly with my [Pop-out Jitsi Meet](https://github.com/Jip-Hop/jitsi-pop) extension.
+
 ### Thanks to
 * [Videokaffe](http://www.videokaffe.com/) and their regular projection mapping sessions.
 * The [perspective-transform library](https://github.com/jlouthan/perspective-transform) for tackling the math.
