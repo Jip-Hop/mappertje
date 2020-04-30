@@ -372,12 +372,14 @@ export default function setupSource(
     sourceCorrectMode = newState;
     if (sourceCorrectMode) {
       controllerVid.play();
+      correctedVid.play();
       document.body.classList.add("sourceCorrectMode");
       window.focus();
     } else {
       document.body.classList.remove("sourceCorrectMode");
       window.parent.focus();
       controllerVid.pause();
+      correctedVid.play();
     }
   };
 
