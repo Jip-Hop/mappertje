@@ -1,9 +1,10 @@
 import mapper from "./mapper/index.js";
 const isChrome = window.chrome && navigator.vendor === "Google Inc.";
 const isFirefox = navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
-const isSupportedPlatform = ["MacIntel", "Win32"].indexOf(navigator.platform) > -1;
+const isSupportedPlatform =
+  ["MacIntel", "Win32"].indexOf(navigator.platform) > -1;
 
-var hash, myMapper;
+var hash;
 
 const inExtension = (() => {
   if (window.chrome && window.chrome.extension) {
@@ -62,19 +63,6 @@ const errorHandler = (e, type) => {
   finishSetup();
 };
 
-// const beforeUnloadHandler = (e) => {
-//   // Ask for confirmation
-//   e.preventDefault();
-//   e.returnValue = "";
-// };
-
-const unloadHandler = () => {
-  localStorage.setItem(
-    "mappertje-last-state",
-    JSON.stringify(myMapper.getCurrentState())
-  );
-};
-
 const getStateFromStore = () => {
   var state = localStorage.getItem("mappertje-last-state");
   if (!state) {
@@ -94,12 +82,37 @@ const getStateFromStore = () => {
 const handleStream = (stream, type) => {
   setHash("/" + type);
   cleanBody();
-  myMapper = mapper({
+  mapper({
     stream: stream,
     targetElement: document.body,
-    // beforeUnloadHandler: beforeUnloadHandler,
-    unloadHandler: unloadHandler,
     initialState: getStateFromStore(),
+    readyHandler: (myMapper) => {
+      const unloadHandler = () => {
+        localStorage.setItem(
+          "mappertje-last-state",
+          JSON.stringify(myMapper.getCurrentState())
+        );
+      };
+
+      myMapper.addEventListener("unload", unloadHandler);
+
+      // // Example of how to replace the stream
+      // setTimeout(() => {
+      //   navigator.mediaDevices
+      //     .getUserMedia({
+      //       video: {
+      //         width: { ideal: 360 },
+      //         height: { ideal: 180 },
+      //       },
+      //     })
+      //     .then((stream) => {
+      //       if (myMapper.getStream() !== stream) {
+      //         myMapper.setStream(stream);
+      //       }
+      //     })
+      //     .catch((e) => errorHandler(e, type));
+      // }, 10000);
+    },
   });
 };
 
@@ -122,23 +135,6 @@ const captureCamera = () => {
     },
     "camera"
   );
-
-  // // Example of how to replace the stream
-  // setTimeout(() => {
-  //   navigator.mediaDevices
-  //     .getUserMedia({
-  //       video: {
-  //         width: { ideal: 360 },
-  //         height: { ideal: 180 },
-  //       },
-  //     })
-  //     .then((stream) => {
-  //       if (myMapper.getStream() !== stream) {
-  //         myMapper.setStream(stream);
-  //       }
-  //     })
-  //     .catch((e) => errorHandler(e, type));
-  // }, 10000);
 };
 
 const captureScreen = () => {
@@ -223,7 +219,7 @@ const init = () => {
   const screenButton = document.getElementById("screen");
   screenButton.disabled = false;
   screenButton.onclick = screenClickHandler;
-  console.log("INIT", isSupportedPlatform, isChrome, isFirefox);
+
   if (!(isSupportedPlatform && (isChrome || isFirefox))) {
     document.getElementById("warning").innerText =
       "Warning: Mappertje may not work on this platform. Supported platforms are the Chrome and Firefox desktop browsers for Windows 10 and MacOS.";

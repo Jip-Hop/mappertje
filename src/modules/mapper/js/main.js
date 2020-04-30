@@ -224,12 +224,7 @@ const template = html`
   </div>
 `;
 
-export default function setupMain(
-  window,
-  config,
-  setupSource,
-  fixPerspective
-) {
+export default function setupMain(window, config, setupSource, fixPerspective) {
   const document = window.document;
   var corners;
   var currentCorner;
@@ -696,12 +691,7 @@ export default function setupMain(
   // Hide those colors on inactive.
 
   const setup = async () => {
-    const {
-      stream,
-      beforeUnloadHandler,
-      unloadHandler,
-      initialState,
-    } = config;
+    const { stream, readyHandler, initialState } = config;
 
     currentStream = stream;
 
@@ -752,18 +742,23 @@ export default function setupMain(
       };
       videoElement.addEventListener("canplay", firstPlayHandler);
 
+      const sourceReadyCallback = () => {
+        sourceIframe &&
+          sourceIframe.contentWindow &&
+          sourceIframe.contentWindow.sourceCorrect &&
+          sourceIframe.contentWindow.sourceCorrect(correctingSource);
+        if (typeof readyHandler === "function") {
+          readyHandler(window);
+        }
+      };
+      
       setupSource(
         sourceIframe.contentWindow,
         currentStream,
         videoElement,
         initialSourceCorners,
         previewPaddingSize,
-        () => {
-          sourceIframe &&
-            sourceIframe.contentWindow &&
-            sourceIframe.contentWindow.sourceCorrect &&
-            sourceIframe.contentWindow.sourceCorrect(correctingSource);
-        },
+        sourceReadyCallback,
         transform2d,
         setupLines,
         adjustLines,
@@ -808,14 +803,6 @@ export default function setupMain(
       window.addEventListener("blur", () => {
         setInactiveImmediately();
       });
-
-      if (typeof beforeUnloadHandler === "function") {
-        window.addEventListener("beforeunload", beforeUnloadHandler);
-      }
-
-      if (typeof unloadHandler === "function") {
-        window.addEventListener("unload", unloadHandler);
-      }
 
       scheduleUserInactive();
     };
