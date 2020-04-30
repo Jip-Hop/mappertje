@@ -222,7 +222,7 @@ export default function setupSource(
   var currentCorner;
   var shouldDisableCornerResetButton = true;
   const initialPointsPosition = [];
-
+  
   const setCurrentCorner = (newCorner) => {
     currentCorner = newCorner;
   };
@@ -337,6 +337,10 @@ export default function setupSource(
       applyTransform();
     }
   };
+
+  window.getShouldDisableCornerResetButton = () => {
+    return shouldDisableCornerResetButton;
+  }
 
   window.getCornersPosition = () => {
     return window.controlPoints.map((p) => {

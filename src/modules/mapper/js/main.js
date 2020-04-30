@@ -540,7 +540,8 @@ export default function setupMain(window, config, setupSource, fixPerspective) {
     cornerResetButton.disabled =
       sourceIframe &&
       sourceIframe.contentWindow &&
-      sourceIframe.contentWindow.shouldDisableCornerResetButton;
+      sourceIframe.contentWindow.getShouldDisableCornerResetButton &&
+      sourceIframe.contentWindow.getShouldDisableCornerResetButton();
 
     // Stay inactive
     setInactiveImmediately();
@@ -751,7 +752,7 @@ export default function setupMain(window, config, setupSource, fixPerspective) {
           readyHandler(window);
         }
       };
-      
+
       setupSource(
         sourceIframe.contentWindow,
         currentStream,
