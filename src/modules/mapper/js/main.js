@@ -149,7 +149,8 @@ const template = html`
       align-items: center;
     }
 
-    #buttonsContainer > button {
+    #buttonsContainer > button,
+    #buttonsContainer > select {
       position: relative;
       z-index: 1;
       padding: 5px;
@@ -158,7 +159,8 @@ const template = html`
       color: #aaa;
     }
 
-    #buttonsContainer > button:not(:disabled) {
+    #buttonsContainer > button:not(:disabled),
+    #buttonsContainer > select:not(:disabled) {
       cursor: pointer;
       background: blue;
       color: white;
@@ -167,6 +169,14 @@ const template = html`
     #buttonsContainer > button > .shortcuts {
       font-family: monospace;
       color: darkgray;
+    }
+
+    #videoSource {
+      max-width: 100px;
+      height: 23px;
+      border-radius: 0;
+      -webkit-appearance: none;
+      -moz-appearance: none;
     }
 
     html
@@ -221,6 +231,7 @@ const template = html`
     <button id="fullScreenButton">
       Full Screen Toggle <span class="shortcuts">Enter</span>
     </button>
+    <select id="videoSource"></select>
   </div>
 `;
 
@@ -665,6 +676,13 @@ export default function setupMain(window, config, setupSource, fixPerspective) {
   };
 
   window.setStream = (stream) => {
+    if (currentStream) {
+      console.log("currentStream", currentStream, stream);
+      currentStream.getTracks().forEach((track) => {
+        track.stop();
+      });
+    }
+
     currentStream = stream;
     sourceIframe &&
       sourceIframe.contentWindow &&
@@ -687,6 +705,56 @@ export default function setupMain(window, config, setupSource, fixPerspective) {
     };
   };
 
+  // TODO: Choosing the default camera in Chrome via chrome://settings/content/camera
+  // doesn't work reliably. Need to let user choose explicitly which cam to use.
+  // TODO: add "Screen Capture" as the first option in the videoSelect dropdown.
+  // TODO: remember webcam choice, use it by default
+  // TODO: use the same constraints for camera as in ../index.js,
+  // or maybe don't call getUserMedia for webcams in ../index.js at all,
+  // and handle that here
+  // https://github.com/webrtc/samples/blob/gh-pages/src/content/devices/input-output/js/main.js
+  const gotDevices = (deviceInfos) => {
+    const videoSelect = document.querySelector("select#videoSource");
+
+    // Handles being called several times to update labels. Preserve values.
+    const value = videoSelect.value;
+
+    while (videoSelect.firstChild) {
+      videoSelect.removeChild(videoSelect.firstChild);
+    }
+
+    for (let i = 0; i !== deviceInfos.length; ++i) {
+      const deviceInfo = deviceInfos[i];
+      const option = document.createElement("option");
+      option.value = deviceInfo.deviceId;
+      if (deviceInfo.kind === "videoinput") {
+        option.text = deviceInfo.label || `camera ${videoSelect.length + 1}`;
+        videoSelect.appendChild(option);
+      }
+    }
+
+    if (
+      Array.prototype.slice
+        .call(videoSelect.childNodes)
+        .some((n) => n.value === value)
+    ) {
+      videoSelect.value = value;
+    }
+  };
+
+  const gotStream = (stream) => {
+    window.setStream(stream);
+    // Refresh button list in case labels have become available
+    return navigator.mediaDevices.enumerateDevices();
+  };
+
+  const handleError = (error) =>
+    console.log(
+      "navigator.MediaDevices.getUserMedia error: ",
+      error.message,
+      error.name
+    );
+
   // TODO: identify the corners based on 4 colors,
   // also put those 4 colors in the corners of the black background as reference.
   // Hide those colors on inactive.
@@ -695,6 +763,11 @@ export default function setupMain(window, config, setupSource, fixPerspective) {
     const { stream, readyHandler, initialState } = config;
 
     currentStream = stream;
+
+    navigator.mediaDevices
+      .enumerateDevices()
+      .then(gotDevices)
+      .catch(handleError);
 
     var initialTargetCorners, initialSourceCorners;
     if (initialState) {
@@ -776,6 +849,7 @@ export default function setupMain(window, config, setupSource, fixPerspective) {
 
       const guidesButton = document.querySelector("#guidesButton");
       const fullScreenButton = document.querySelector("#fullScreenButton");
+      const videoSelect = document.querySelector("select#videoSource");
       cornerResetButton.disabled = shouldDisableCornerResetButton;
 
       initCorners(initialTargetCorners);
@@ -784,6 +858,22 @@ export default function setupMain(window, config, setupSource, fixPerspective) {
       sourceCorrectButton.onclick = toggleSourceCorrect;
       guidesButton.onclick = toggleGuides;
       fullScreenButton.onclick = toggleFullScreen;
+
+      videoSelect.onchange = () => {
+        const videoSource = videoSelect.value;
+        const constraints = {
+          video: {
+            deviceId: videoSource ? { exact: videoSource } : undefined,
+            width: { ideal: 4096 },
+            height: { ideal: 2160 },
+          },
+        };
+        navigator.mediaDevices
+          .getUserMedia(constraints)
+          .then(gotStream)
+          .then(gotDevices)
+          .catch(handleError);
+      };
 
       // Poll for screen resolution changes
       window.setInterval(updateResolution, 1000);
