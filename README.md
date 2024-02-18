@@ -2,7 +2,7 @@
 
 <img alt="Usage Demonstration" title="Usage Demonstration" src="demo.gif" width="3840px" />
 
-## Try out [the online version of Mappertje](https://mappertje.tk/src/#/)
+## Try out [the online version of Mappertje](https://mappertje.debeer.it/src/#/)
 
 Projection mapping tool for Chrome and Firefox. Apply perspective correction and crop your source (camera or screen) to map it onto a rectangular target surface with corner pinning.
 
